@@ -160,14 +160,14 @@ export class App {
               <ACCTID>${this.account}</ACCTID>
               <ACCTTYPE>CHECKING</ACCTTYPE>
             </BANKACCTFROM>
-        `;
+`;
     return ofx;
   }
 
   public outputOneStatement(stmt: Statement): string {
-    const memo = [stmt.category];
+    const memo1: string[] = []; // labels + statement memo
     if (stmt.label?.length) {
-      memo.push(
+      memo1.push(
         stmt.label
           .split(",")
           .map((label) => `#${label.replaceAll(" ", "_")}`)
@@ -175,18 +175,23 @@ export class App {
       );
     }
     if (stmt.memo && stmt.memo != stmt.payee) {
-      memo.push(this.formatString(stmt.memo));
+      memo1.push(this.formatString(stmt.memo));
     }
-    const ofx = `
-              <STMTTRN>
+    const memo2: string[] = []; // category / labels + statement memo
+    if (stmt.category.length) memo2.push(stmt.category);
+    if (memo1.length) memo2.push(memo1.join(" "));
+    let ofx = `              <STMTTRN>
                 <TRNTYPE>${stmt.amount >= 0 ? "CREDIT" : "DEBIT"}</TRNTYPE>
                 <DTPOSTED>${this.formatDate(stmt.date)}</DTPOSTED>
                 <TRNAMT>${stmt.amount}</TRNAMT>
                 <FITID>${stmt.reference}</FITID>
                 <NAME>${this.formatString(stmt.payee)}</NAME>
-                ${memo.length ? "<MEMO>" + memo.join(" / ") + "</MEMO>" : ""}
-              </STMTTRN>
-    `;
+`;
+    if (memo2.length)
+      ofx += `                <MEMO>${memo2.join(" / ")}</MEMO>
+`;
+    ofx += `              </STMTTRN>
+`;
     return ofx;
   }
 
@@ -206,17 +211,15 @@ export class App {
       }
       this.finalBalance += stmt.amount;
     });
-    let ofx = `
-            <BANKTRANLIST>
+    let ofx = `            <BANKTRANLIST>
               <DTSTART>${this.formatDate(dtFrom)}</DTSTART>
               <DTEND>${this.formatDate(dtTo)}</DTEND>
-    `;
+`;
     statements.forEach((stmt: Statement) => {
       ofx += this.outputOneStatement(stmt);
     });
-    ofx += `
-            </BANKTRANLIST>
-    `;
+    ofx += `            </BANKTRANLIST>
+`;
     return ofx;
   }
 

@@ -27,9 +27,9 @@
   "devDependencies": {
     "@types/config": "^3.3.4",
     "@types/node": "^20.14.15",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.1.2",
     "eslint": "^9.9.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.1",
     "husky": "^9.1.5",
     "lint-staged": "^15.2.9",
