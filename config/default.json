@@ -13,13 +13,27 @@
       "toLine": 999999,
       "dateFormat": "dd/MM/yyyy",
       "columns": {
-        "date": 0,
-        "payee": 1,
-        "category": 2,
-        "amount": 3,
-        "memo": 4,
-        "label": 6,
-        "account": 7
+        "date": 1,
+        "payee": 2,
+        "category": 3,
+        "amount": 4,
+        "memo": 5,
+        "label": 7,
+        "account": 8
+      }
+    },
+    "Revolut": {
+      "delimiter": ",",
+      "encoding": "utf8",
+      "fromLine": 2,
+      "toLine": 999999,
+      "dateFormat": "yyyy-MM-dd HH:mm:ss",
+      "columns": {
+        "date": 3,
+        "payee": 5,
+        "category": 1,
+        "amount": 6,
+        "account": 2
       }
     }
   },

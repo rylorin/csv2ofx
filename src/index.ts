@@ -32,8 +32,8 @@ interface Statement {
   payee: string;
   category: string;
   amount: number;
-  memo: string;
-  label: string;
+  memo: string | undefined;
+  label: string | undefined;
   reference: string;
   account: string;
 }
@@ -43,8 +43,8 @@ interface Columns {
   payee: number;
   category: number;
   amount: number;
-  memo: number;
-  label: number;
+  memo: number | null;
+  label: number | null;
   reference: number | null;
   account: number;
 }
@@ -81,7 +81,7 @@ export class App {
 
   getReference(line: any): string {
     if (this.columns!.reference) {
-      const col = this.columns!.reference;
+      const col = this.columns!.reference - 1;
       return line[col];
     } else {
       return hashObject(line);
@@ -89,37 +89,41 @@ export class App {
   }
 
   getAccount(line: any) {
-    const col = this.columns!.account;
+    const col = this.columns!.account - 1;
     return line[col];
   }
 
-  getLabel(line: any): string {
-    const col = this.columns!.label;
-    return line[col];
+  getLabel(line: any): string | undefined {
+    if (this.columns!.label) {
+      const col = this.columns!.label - 1;
+      return line[col];
+    }
   }
 
-  getMemo(line: any): string {
-    const col = this.columns!.memo;
-    return line[col];
+  getMemo(line: any): string | undefined {
+    if (this.columns!.memo) {
+      const col = this.columns!.memo - 1;
+      return line[col];
+    }
   }
 
   getAmount(line: any): number {
-    const col = this.columns!.amount;
+    const col = this.columns!.amount - 1;
     return parseFloat(line[col].replaceAll(".", "").replace(",", "."));
   }
 
   getCategory(line: any): string {
-    const col = this.columns!.category;
+    const col = this.columns!.category - 1;
     return line[col];
   }
 
   getPayee(line: any): string {
-    const col = this.columns!.payee;
+    const col = this.columns!.payee - 1;
     return line[col];
   }
 
   getDate(line: any): DateTime {
-    const col = this.columns!.date;
+    const col = this.columns!.date - 1;
     const dt = DateTime.fromFormat(
       line[col],
       config.get(`models.${this.model}.dateFormat`)
@@ -248,8 +252,12 @@ export class App {
       payee: this.config.get<number>(`models.${model}.columns.payee`),
       category: this.config.get<number>(`models.${model}.columns.category`),
       amount: this.config.get<number>(`models.${model}.columns.amount`),
-      memo: this.config.get<number>(`models.${model}.columns.memo`),
-      label: this.config.get<number>(`models.${model}.columns.label`),
+      memo: this.config.has(`models.${model}.columns.memo`)
+        ? this.config.get<number>(`models.${model}.columns.memo`)
+        : null,
+      label: this.config.has(`models.${model}.columns.label`)
+        ? this.config.get<number>(`models.${model}.columns.label`)
+        : null,
       reference: this.config.has(`models.${model}.columns.reference`)
         ? this.config.get<number>(`models.${model}.columns.reference`)
         : null,
