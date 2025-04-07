@@ -1,24 +1,21 @@
-import { IConfig } from "config";
 import { DateTime } from "luxon";
 import { formatLabels, formatString } from "../utils/stringUtils";
+import { ConfigManager } from "./ConfigManager";
 import { Statement } from "./Statement";
 
 export class OfxGenerator {
-  private readonly config: IConfig;
+  private readonly configManager: ConfigManager;
   private readonly account: string;
-  private readonly currency: string;
   private finalBalance: number = 0;
 
   /**
    * Creates a new OfxGenerator instance
-   * @param config The application configuration
+   * @param configManager The configuration manager instance
    * @param account The account identifier
-   * @param currency The currency code
    */
-  constructor(config: IConfig, account: string, currency: string) {
-    this.config = config;
+  constructor(configManager: ConfigManager, account: string) {
+    this.configManager = configManager;
     this.account = account;
-    this.currency = currency;
   }
 
   private formatDate(datetime: DateTime): string {
@@ -30,7 +27,8 @@ export class OfxGenerator {
    * @returns The OFX header as a string
    */
   public generateHeader(): string {
-    const bankId = this.config.get<string>(`accounts.${this.account}.bankId`);
+    const bankId = this.configManager.getBankId(this.account);
+    const currency = this.configManager.getCurrency(this.account);
     const ofx = `<?xml version="1.0" encoding="utf-8" ?>
     <?OFX OFXHEADER="200" VERSION="202" SECURITY="NONE" OLDFILEUID="NONE" NEWFILEUID="NONE"?>
     <OFX>
@@ -52,7 +50,7 @@ export class OfxGenerator {
             <SEVERITY>INFO</SEVERITY>
           </STATUS>
           <STMTRS>
-            <CURDEF>${this.currency}</CURDEF>
+            <CURDEF>${currency}</CURDEF>
             <BANKACCTFROM>
               <BANKID>${bankId}</BANKID>
               <ACCTID>${this.account}</ACCTID>

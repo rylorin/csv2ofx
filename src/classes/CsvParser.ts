@@ -1,14 +1,15 @@
-import { IConfig } from "config";
 import { parse } from "csv-parse";
 import { DateTime } from "luxon";
+import fs from "node:fs";
 import { hashObject } from "../utils/hashUtils";
 import { Columns } from "./Columns";
+import { ConfigManager } from "./ConfigManager";
 import { Statement } from "./Statement";
 
 type CsvLine = string[];
 
 export class CsvParser {
-  private readonly config: IConfig;
+  private readonly configManager: ConfigManager;
   private readonly model: string;
   private readonly columns: Columns;
   private readonly fromDate?: DateTime;
@@ -16,20 +17,20 @@ export class CsvParser {
 
   /**
    * Creates a new CsvParser instance
-   * @param config The application configuration
+   * @param configManager The configuration manager instance
    * @param model The model name to use for parsing
    * @param columns The column mapping configuration
    * @param account Optional account filter
    * @param fromDate Optional date filter
    */
   constructor(
-    config: IConfig,
+    configManager: ConfigManager,
     model: string,
     columns: Columns,
     account?: string,
     fromDate?: DateTime
   ) {
-    this.config = config;
+    this.configManager = configManager;
     this.model = model;
     this.columns = columns;
     this.account = account;
@@ -87,7 +88,7 @@ export class CsvParser {
     const dateStr = line[col] ?? "";
     const dt = DateTime.fromFormat(
       dateStr,
-      this.config.get(`models.${this.model}.dateFormat`)
+      this.configManager.getModelDateFormat(this.model)
     );
     if (!dt.isValid) {
       throw new Error(`Invalid date format: ${dateStr}`);
@@ -106,19 +107,18 @@ export class CsvParser {
 
     return new Promise((resolve, reject) => {
       const parser = parse({
-        delimiter: this.config.get(
-          `models.${this.model}.delimiter`
-        ) as string[1],
-        from_line: this.config.get(`models.${this.model}.fromLine`) as number,
-        to_line: this.config.get(`models.${this.model}.toLine`) as number,
+        delimiter: this.configManager.getModelDelimiter(this.model),
+        from_line: this.configManager.getModelFromLine(this.model),
+        to_line: this.configManager.getModelToLine(this.model),
         relaxQuotes: true,
       });
-
+      //   console.log("parser");
       parser
         .on("error", (error: Error) => {
           reject(error);
         })
         .on("data", (line: CsvLine) => {
+          //   console.log("data", line);
           try {
             const statement: Statement = {
               date: this.getDate(line),
@@ -148,6 +148,10 @@ export class CsvParser {
         .on("end", () => {
           resolve(statements);
         });
+      fs.createReadStream(
+        csvFilePath,
+        this.configManager.getModelEncoding(this.model)
+      ).pipe(parser);
     });
   }
 }

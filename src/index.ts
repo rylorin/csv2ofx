@@ -27,32 +27,35 @@ export class App {
     account?: string,
     fromDate?: string
   ) {
+    // console.log(model, csvFilePath, ofxFilePath, account, fromDate);
     try {
       // Get configuration
       const accountId = account || this.configManager.getAccount();
-      const currency = this.configManager.getCurrency(accountId);
       const columns = this.configManager.getColumns(model);
       const startDate = fromDate
         ? DateTime.fromFormat(fromDate, "yyyy-MM-dd")
         : this.configManager.getFromDate();
 
+      // console.log(csvFilePath);
       // Parse CSV
       const csvParser = new CsvParser(
-        config,
+        this.configManager,
         model,
         columns,
         accountId,
         startDate
       );
+      // console.log("parse csv");
       const statements = await csvParser.parseCsv(csvFilePath);
 
+      // console.log(ofxFilePath, statements);
       if (statements.length === 0) {
         console.log("No statements to process");
         return;
       }
 
       // Generate OFX
-      const ofxGenerator = new OfxGenerator(config, accountId, currency);
+      const ofxGenerator = new OfxGenerator(this.configManager, accountId);
       fs.writeFileSync(ofxFilePath, ofxGenerator.generateHeader());
       fs.appendFileSync(
         ofxFilePath,

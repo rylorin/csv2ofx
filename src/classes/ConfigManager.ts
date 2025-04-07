@@ -61,6 +61,19 @@ export class ConfigManager {
   }
 
   /**
+   * Gets the bank identifier for a specific account
+   * @param account The account identifier
+   * @returns The bank identifier
+   * @throws Error if bank ID is not configured for the account
+   */
+  public getBankId(account: string): string {
+    if (!this.config.has(`accounts.${account}.bankId`)) {
+      throw new Error(`Bank ID not configured for account: ${account}`);
+    }
+    return this.config.get<string>(`accounts.${account}.bankId`);
+  }
+
+  /**
    * Gets the currency code for a specific account
    * @param account The account identifier
    * @returns The currency code
@@ -95,10 +108,62 @@ export class ConfigManager {
    * @returns The file encoding
    * @throws Error if encoding is not configured for the model
    */
-  public getModelEncoding(model: string): string {
+  public getModelEncoding(model: string): BufferEncoding {
     if (!this.config.has(`models.${model}.encoding`)) {
       throw new Error(`Encoding not configured for model: ${model}`);
     }
-    return this.config.get<string>(`models.${model}.encoding`);
+    return this.config.get<BufferEncoding>(`models.${model}.encoding`);
+  }
+
+  /**
+   * Gets the date format for a specific model
+   * @param model The model name
+   * @returns The date format
+   * @throws Error if date format is not configured for the model
+   */
+  public getModelDateFormat(model: string): string {
+    if (!this.config.has(`models.${model}.dateFormat`)) {
+      throw new Error(`Date format not configured for model: ${model}`);
+    }
+    return this.config.get<string>(`models.${model}.dateFormat`);
+  }
+
+  /**
+   * Gets the delimiter for a specific model
+   * @param model The model name
+   * @returns The delimiter
+   * @throws Error if delimiter is not configured for the model
+   */
+  public getModelDelimiter(model: string): string {
+    if (!this.config.has(`models.${model}.delimiter`)) {
+      throw new Error(`Delimiter not configured for model: ${model}`);
+    }
+    return this.config.get<string>(`models.${model}.delimiter`);
+  }
+
+  /**
+   * Gets the starting line number for a specific model
+   * @param model The model name
+   * @returns The starting line number
+   * @throws Error if fromLine is not configured for the model
+   */
+  public getModelFromLine(model: string): number {
+    if (!this.config.has(`models.${model}.fromLine`)) {
+      throw new Error(`From line not configured for model: ${model}`);
+    }
+    return this.config.get<number>(`models.${model}.fromLine`);
+  }
+
+  /**
+   * Gets the ending line number for a specific model
+   * @param model The model name
+   * @returns The ending line number
+   * @throws Error if toLine is not configured for the model
+   */
+  public getModelToLine(model: string): number {
+    if (!this.config.has(`models.${model}.toLine`)) {
+      throw new Error(`To line not configured for model: ${model}`);
+    }
+    return this.config.get<number>(`models.${model}.toLine`);
   }
 }
