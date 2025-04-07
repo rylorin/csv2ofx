@@ -27,7 +27,7 @@ export class App {
     account?: string,
     fromDate?: string
   ) {
-    // console.log(model, csvFilePath, ofxFilePath, account, fromDate);
+    console.log(model, csvFilePath, ofxFilePath, account, fromDate);
     try {
       // Get configuration
       const accountId = account || this.configManager.getAccount();
@@ -36,8 +36,8 @@ export class App {
         ? DateTime.fromFormat(fromDate, "yyyy-MM-dd")
         : this.configManager.getFromDate();
 
-      // console.log(csvFilePath);
       // Parse CSV
+      console.log(csvFilePath);
       const csvParser = new CsvParser(
         this.configManager,
         model,
@@ -45,9 +45,7 @@ export class App {
         accountId,
         startDate
       );
-      // console.log("parse csv");
       const statements = await csvParser.parseCsv(csvFilePath);
-
       // console.log(ofxFilePath, statements);
       if (statements.length === 0) {
         console.log("No statements to process");

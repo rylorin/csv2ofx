@@ -9,9 +9,9 @@
     "linxo": {
       "delimiter": "\t",
       "encoding": "utf16le",
-      "fromLine": 2,
-      "toLine": 999999,
-      "dateFormat": "dd/MM/yyyy",
+      "from_line": 2,
+      "to_line": 999999,
+      "date_format": "dd/MM/yyyy",
       "columns": {
         "date": 1,
         "payee": 2,
@@ -25,9 +25,9 @@
     "Revolut": {
       "delimiter": ",",
       "encoding": "utf8",
-      "fromLine": 2,
-      "toLine": 999999,
-      "dateFormat": "yyyy-MM-dd HH:mm:ss",
+      "from_Line": 2,
+      "to_line": 999999,
+      "date_format": "yyyy-MM-dd HH:mm:ss",
       "columns": {
         "date": 3,
         "payee": 5,
@@ -37,7 +37,6 @@
       }
     }
   },
-  "run": {
-    "account": "to populate"
-  }
+  "account": "to populate",
+  "from_date": "2001-01-01"
 }

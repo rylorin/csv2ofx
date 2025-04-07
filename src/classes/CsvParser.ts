@@ -118,7 +118,7 @@ export class CsvParser {
           reject(error);
         })
         .on("data", (line: CsvLine) => {
-          //   console.log("data", line);
+          // console.log("data", line);
           try {
             const statement: Statement = {
               date: this.getDate(line),

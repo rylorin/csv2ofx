@@ -2,8 +2,15 @@ import { IConfig } from "config";
 import { DateTime } from "luxon";
 import { Columns } from "./Columns";
 
+interface Cache<T> {
+  value: T;
+  timestamp: number;
+}
+
 export class ConfigManager {
   private readonly config: IConfig;
+  private readonly cacheTTL: number = 5 * 60_000; // 5 minutes in milliseconds
+  private readonly cache: Map<string, Cache<any>> = new Map();
 
   /**
    * Creates a new ConfigManager instance
@@ -13,157 +20,170 @@ export class ConfigManager {
     this.config = config;
   }
 
+  private getCached<T>(key: string, getter: () => T): T {
+    const cached = this.cache.get(key);
+    const now = Date.now();
+
+    if (cached && now - cached.timestamp < this.cacheTTL) {
+      return cached.value as T;
+    }
+
+    const value = getter();
+    this.cache.set(key, { value, timestamp: now });
+    return value;
+  }
+
   /**
    * Gets the column mapping configuration for a specific model
-   * @param model The model name
+   * @param model The model name to get columns for
    * @returns The column mapping configuration
-   * @throws Error if required columns are missing
    */
   public getColumns(model: string): Columns {
-    const requiredColumns = [
-      "date",
-      "payee",
-      "category",
-      "amount",
-      "account",
-    ] as const;
-    const columns: Partial<Columns> = {};
-
-    // Check required columns
-    for (const col of requiredColumns) {
-      if (!this.config.has(`models.${model}.columns.${col}`)) {
-        throw new Error(`Missing required column configuration: ${col}`);
+    return this.getCached(`columns:${model}`, () => {
+      const columns = this.config.get(`models.${model}.columns`);
+      if (!columns) {
+        throw new Error(`No columns configuration found for model: ${model}`);
       }
-      columns[col] = this.config.get<number>(`models.${model}.columns.${col}`);
-    }
-
-    // Optional columns
-    const optionalColumns = ["memo", "label", "reference"] as const;
-    for (const col of optionalColumns) {
-      columns[col] = this.config.has(`models.${model}.columns.${col}`)
-        ? this.config.get<number>(`models.${model}.columns.${col}`)
-        : null;
-    }
-
-    return columns as Columns;
+      return columns as Columns;
+    });
   }
 
   /**
    * Gets the account identifier from the configuration
    * @returns The account identifier
-   * @throws Error if account is not configured
    */
   public getAccount(): string {
-    if (!this.config.has("run.account")) {
-      throw new Error("Account not configured");
-    }
-    return this.config.get<string>("run.account");
+    return this.getCached("account", () => {
+      const account = this.config.get("account");
+      if (!account) {
+        throw new Error("No account configuration found");
+      }
+      return account as string;
+    });
   }
 
   /**
-   * Gets the bank identifier for a specific account
-   * @param account The account identifier
-   * @returns The bank identifier
-   * @throws Error if bank ID is not configured for the account
-   */
-  public getBankId(account: string): string {
-    if (!this.config.has(`accounts.${account}.bankId`)) {
-      throw new Error(`Bank ID not configured for account: ${account}`);
-    }
-    return this.config.get<string>(`accounts.${account}.bankId`);
-  }
-
-  /**
-   * Gets the currency code for a specific account
-   * @param account The account identifier
+   * Gets the currency code for a specific model
+   * @param account The model name to get currency for
    * @returns The currency code
-   * @throws Error if currency is not configured for the account
    */
   public getCurrency(account: string): string {
-    if (!this.config.has(`accounts.${account}.currency`)) {
-      throw new Error(`Currency not configured for account: ${account}`);
-    }
-    return this.config.get<string>(`accounts.${account}.currency`);
-  }
-
-  /**
-   * Gets the start date filter from the configuration
-   * @returns The start date or undefined if not configured
-   */
-  public getFromDate(): DateTime | undefined {
-    if (this.config.has("run.fromDate")) {
-      const dateStr = this.config.get<string>("run.fromDate");
-      const date = DateTime.fromISO(dateStr);
-      if (!date.isValid) {
-        throw new Error(`Invalid fromDate format: ${dateStr}`);
+    return this.getCached(`currency:${account}`, () => {
+      const currency = this.config.get(`accounts.${account}.currency`);
+      if (!currency) {
+        throw new Error(
+          `No currency configuration found for model: ${account}`
+        );
       }
-      return date;
-    }
-    return undefined;
+      return currency as string;
+    });
   }
 
   /**
-   * Gets the file encoding for a specific model
-   * @param model The model name
-   * @returns The file encoding
-   * @throws Error if encoding is not configured for the model
+   * Gets the start date for filtering statements
+   * @returns The start date as a DateTime object
    */
-  public getModelEncoding(model: string): BufferEncoding {
-    if (!this.config.has(`models.${model}.encoding`)) {
-      throw new Error(`Encoding not configured for model: ${model}`);
-    }
-    return this.config.get<BufferEncoding>(`models.${model}.encoding`);
+  public getFromDate(): DateTime {
+    return this.getCached("from_date", () => {
+      const fromDate = this.config.get<string>("from_date");
+      if (!fromDate) {
+        throw new Error("No from_date configuration found");
+      }
+      return DateTime.fromFormat(fromDate as string, "yyyy-MM-dd");
+    });
   }
 
   /**
    * Gets the date format for a specific model
-   * @param model The model name
-   * @returns The date format
-   * @throws Error if date format is not configured for the model
+   * @param model The model name to get date format for
+   * @returns The date format string
    */
   public getModelDateFormat(model: string): string {
-    if (!this.config.has(`models.${model}.dateFormat`)) {
-      throw new Error(`Date format not configured for model: ${model}`);
-    }
-    return this.config.get<string>(`models.${model}.dateFormat`);
+    return this.getCached(`dateFormat:${model}`, () => {
+      const dateFormat = this.config.get(`models.${model}.date_format`);
+      if (!dateFormat) {
+        throw new Error(
+          `No date_format configuration found for model: ${model}`
+        );
+      }
+      return dateFormat as string;
+    });
   }
 
   /**
    * Gets the delimiter for a specific model
-   * @param model The model name
-   * @returns The delimiter
-   * @throws Error if delimiter is not configured for the model
+   * @param model The model name to get delimiter for
+   * @returns The delimiter string
    */
   public getModelDelimiter(model: string): string {
-    if (!this.config.has(`models.${model}.delimiter`)) {
-      throw new Error(`Delimiter not configured for model: ${model}`);
-    }
-    return this.config.get<string>(`models.${model}.delimiter`);
+    return this.getCached(`delimiter:${model}`, () => {
+      const delimiter = this.config.get(`models.${model}.delimiter`);
+      if (!delimiter) {
+        throw new Error(`No delimiter configuration found for model: ${model}`);
+      }
+      return delimiter as string;
+    });
+  }
+
+  /**
+   * Gets the encoding for a specific model
+   * @param model The model name to get encoding for
+   * @returns The encoding string
+   */
+  public getModelEncoding(model: string): BufferEncoding {
+    return this.getCached(`encoding:${model}`, () => {
+      const encoding = this.config.get<BufferEncoding>(
+        `models.${model}.encoding`
+      );
+      if (!encoding) {
+        throw new Error(`No encoding configuration found for model: ${model}`);
+      }
+      return encoding;
+    });
+  }
+
+  /**
+   * Gets the bank ID for a specific model
+   * @param account The model name to get bank ID for
+   * @returns The bank ID string
+   */
+  public getBankId(account: string): string {
+    return this.getCached(`bankId:${account}`, () => {
+      const bankId = this.config.get(`accounts.${account}.bank_id`);
+      if (!bankId) {
+        throw new Error(`No bank_id configuration found for model: ${account}`);
+      }
+      return bankId as string;
+    });
   }
 
   /**
    * Gets the starting line number for a specific model
-   * @param model The model name
+   * @param model The model name to get from line for
    * @returns The starting line number
-   * @throws Error if fromLine is not configured for the model
    */
   public getModelFromLine(model: string): number {
-    if (!this.config.has(`models.${model}.fromLine`)) {
-      throw new Error(`From line not configured for model: ${model}`);
-    }
-    return this.config.get<number>(`models.${model}.fromLine`);
+    return this.getCached(`fromLine:${model}`, () => {
+      const fromLine = this.config.get<number>(`models.${model}.from_line`);
+      if (fromLine === undefined) {
+        throw new Error(`No from_line configuration found for model: ${model}`);
+      }
+      return fromLine as number;
+    });
   }
 
   /**
    * Gets the ending line number for a specific model
-   * @param model The model name
+   * @param model The model name to get to line for
    * @returns The ending line number
-   * @throws Error if toLine is not configured for the model
    */
   public getModelToLine(model: string): number {
-    if (!this.config.has(`models.${model}.toLine`)) {
-      throw new Error(`To line not configured for model: ${model}`);
-    }
-    return this.config.get<number>(`models.${model}.toLine`);
+    return this.getCached(`toLine:${model}`, () => {
+      const toLine = this.config.get(`models.${model}.to_line`);
+      if (toLine === undefined) {
+        throw new Error(`No to_line configuration found for model: ${model}`);
+      }
+      return toLine as number;
+    });
   }
 }
