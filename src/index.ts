@@ -1,338 +1,115 @@
-import { parse } from "csv-parse";
+import { IConfig } from "config";
 import { DateTime } from "luxon";
-import crypto from "node:crypto";
 import fs from "node:fs";
 import { exit } from "node:process";
+import { ConfigManager } from "./classes/ConfigManager";
+import { CsvParser } from "./classes/CsvParser";
+import { OfxGenerator } from "./classes/OfxGenerator";
 
 // Load env vars
 import dotenv from "dotenv";
 dotenv.config();
 
 // Load config
-import { default as config, IConfig } from "config";
-
-function hashObject(object: Record<string, any>): string {
-  if (typeof object != "object") {
-    throw new TypeError("Object expected");
-  }
-
-  const hash = crypto
-    .createHash("sha256")
-    .update(JSON.stringify(object), "utf8")
-    .digest("hex" as crypto.BinaryToTextEncoding);
-
-  return hash;
-}
-
-/**
- * One single statement
- */
-interface Statement {
-  date: DateTime;
-  payee: string;
-  category: string;
-  amount: number;
-  memo: string | undefined;
-  label: string | undefined;
-  reference: string;
-  account: string;
-}
-
-interface Columns {
-  date: number;
-  payee: number;
-  category: number;
-  amount: number;
-  memo: number | null;
-  label: number | null;
-  reference: number | null;
-  account: number;
-}
+import { default as config } from "config";
 
 export class App {
-  private config: IConfig;
-  private model: string | undefined;
-  private account: string | undefined;
-  private currency: string | undefined;
-  private columns: Columns | undefined;
-  private fromDate: DateTime | undefined;
-
-  private finalBalance: number = 0;
+  private configManager: ConfigManager;
 
   constructor(config: IConfig) {
-    this.config = config;
+    this.configManager = new ConfigManager(config);
   }
 
-  /**
-   * Convert a date to OFX format
-   * @param datetime date to format
-   * @returns date as string
-   */
-  private formatDate(datetime: DateTime): string {
-    return datetime.toFormat("yyyyMMdd");
-  }
+  public async run(
+    model: string,
+    csvFilePath: string,
+    ofxFilePath: string,
+    account?: string,
+    fromDate?: string
+  ) {
+    try {
+      // Get configuration
+      const accountId = account || this.configManager.getAccount();
+      const currency = this.configManager.getCurrency(accountId);
+      const columns = this.configManager.getColumns(model);
+      const startDate = fromDate
+        ? DateTime.fromFormat(fromDate, "yyyy-MM-dd")
+        : this.configManager.getFromDate();
 
-  private formatString(str: string): string {
-    return str
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;");
-  }
-
-  getReference(line: any): string {
-    if (this.columns!.reference) {
-      const col = this.columns!.reference - 1;
-      return line[col];
-    } else {
-      return hashObject(line);
-    }
-  }
-
-  getAccount(line: any) {
-    const col = this.columns!.account - 1;
-    return line[col];
-  }
-
-  getLabel(line: any): string | undefined {
-    if (this.columns!.label) {
-      const col = this.columns!.label - 1;
-      return line[col];
-    }
-  }
-
-  getMemo(line: any): string | undefined {
-    if (this.columns!.memo) {
-      const col = this.columns!.memo - 1;
-      return line[col];
-    }
-  }
-
-  getAmount(line: any): number {
-    const col = this.columns!.amount - 1;
-    return parseFloat(line[col].replaceAll(".", "").replace(",", "."));
-  }
-
-  getCategory(line: any): string {
-    const col = this.columns!.category - 1;
-    return line[col];
-  }
-
-  getPayee(line: any): string {
-    const col = this.columns!.payee - 1;
-    return line[col];
-  }
-
-  getDate(line: any): DateTime {
-    const col = this.columns!.date - 1;
-    const dt = DateTime.fromFormat(
-      line[col],
-      config.get(`models.${this.model}.dateFormat`)
-    );
-    return dt;
-  }
-
-  /**
-   * Returns OFX file header
-   * @returns OFX text
-   */
-  public outputOfxHeader(): string {
-    const bankId = this.config.get(`accounts.${this.account}.bankId`);
-    const ofx = `<?xml version="1.0" encoding="utf-8" ?>
-    <?OFX OFXHEADER="200" VERSION="202" SECURITY="NONE" OLDFILEUID="NONE" NEWFILEUID="NONE"?>
-    <OFX>
-      <SIGNONMSGSRSV1>
-        <SONRS>
-          <STATUS>
-            <CODE>0</CODE>
-            <SEVERITY>INFO</SEVERITY>
-          </STATUS>
-          <DTSERVER>${this.formatDate(DateTime.now())}</DTSERVER>
-          <LANGUAGE>ENG</LANGUAGE>
-        </SONRS>
-      </SIGNONMSGSRSV1>
-      <BANKMSGSRSV1>
-        <STMTTRNRS>
-          <TRNUID>0</TRNUID>
-          <STATUS>
-            <CODE>0</CODE>
-            <SEVERITY>INFO</SEVERITY>
-          </STATUS>
-          <STMTRS>
-            <CURDEF>${this.currency}</CURDEF>
-            <BANKACCTFROM>
-              <BANKID>${bankId}</BANKID>
-              <ACCTID>${this.account}</ACCTID>
-              <ACCTTYPE>CHECKING</ACCTTYPE>
-            </BANKACCTFROM>
-`;
-    return ofx;
-  }
-
-  public outputOneStatement(stmt: Statement): string {
-    const memo1: string[] = []; // labels + statement memo
-    if (stmt.label?.length) {
-      memo1.push(
-        stmt.label
-          .split(",")
-          .map((label) => `#${label.replaceAll(" ", "_")}`)
-          .join(" ")
+      // Parse CSV
+      const csvParser = new CsvParser(
+        config,
+        model,
+        columns,
+        accountId,
+        startDate
       );
-    }
-    if (stmt.memo && stmt.memo != stmt.payee) {
-      memo1.push(this.formatString(stmt.memo));
-    }
-    const memo2: string[] = []; // category / labels + statement memo
-    if (stmt.category.length) memo2.push(stmt.category);
-    if (memo1.length) memo2.push(memo1.join(" "));
-    let ofx = `              <STMTTRN>
-                <TRNTYPE>${stmt.amount >= 0 ? "CREDIT" : "DEBIT"}</TRNTYPE>
-                <DTPOSTED>${this.formatDate(stmt.date)}</DTPOSTED>
-                <TRNAMT>${stmt.amount}</TRNAMT>
-                <FITID>${stmt.reference}</FITID>
-                <NAME>${this.formatString(stmt.payee)}</NAME>
-`;
-    if (memo2.length)
-      ofx += `                <MEMO>${memo2.join(" / ")}</MEMO>
-`;
-    ofx += `              </STMTTRN>
-`;
-    return ofx;
-  }
+      const statements = await csvParser.parseCsv(csvFilePath);
 
-  /**
-   * Returns parsed statements as OFX text
-   * @returns OFX text
-   */
-  public outputOfxStatements(statements: Statement[]): string {
-    let dtFrom = statements[0].date;
-    let dtTo = statements[0].date;
-    statements.forEach((stmt: Statement) => {
-      if (stmt.date < dtFrom) {
-        dtFrom = stmt.date;
+      if (statements.length === 0) {
+        console.log("No statements to process");
+        return;
       }
-      if (stmt.date > dtTo) {
-        dtTo = stmt.date;
-      }
-      this.finalBalance += stmt.amount;
-    });
-    let ofx = `            <BANKTRANLIST>
-              <DTSTART>${this.formatDate(dtFrom)}</DTSTART>
-              <DTEND>${this.formatDate(dtTo)}</DTEND>
-`;
-    statements.forEach((stmt: Statement) => {
-      ofx += this.outputOneStatement(stmt);
-    });
-    ofx += `            </BANKTRANLIST>
-`;
-    return ofx;
-  }
 
-  /**
-   * Returns OFX trailer
-   * @param _parsed unused
-   * @returns OFX text
-   */
-  public outputOfxTrailer(): string {
-    const ofx = `
-            <LEDGERBAL>
-              <BALAMT>${this.finalBalance}</BALAMT>
-              <DTASOF>${this.formatDate(DateTime.now())}</DTASOF>
-            </LEDGERBAL>
-          </STMTRS>
-        </STMTTRNRS>
-      </BANKMSGSRSV1>
-    </OFX>
-    `;
-    return ofx;
-  }
-
-  private getColumns(model: string): Columns {
-    const columns = {
-      date: this.config.get<number>(`models.${model}.columns.date`),
-      payee: this.config.get<number>(`models.${model}.columns.payee`),
-      category: this.config.get<number>(`models.${model}.columns.category`),
-      amount: this.config.get<number>(`models.${model}.columns.amount`),
-      memo: this.config.has(`models.${model}.columns.memo`)
-        ? this.config.get<number>(`models.${model}.columns.memo`)
-        : null,
-      label: this.config.has(`models.${model}.columns.label`)
-        ? this.config.get<number>(`models.${model}.columns.label`)
-        : null,
-      reference: this.config.has(`models.${model}.columns.reference`)
-        ? this.config.get<number>(`models.${model}.columns.reference`)
-        : null,
-      account: this.config.get<number>(`models.${model}.columns.account`),
-    };
-    return columns;
-  }
-
-  public async run(model: string, csvFilePath: string, ofxFilePath: string) {
-    const statements: Statement[] = [];
-    this.model = model;
-    this.columns = this.getColumns(model);
-    this.account = this.config.get("run.account");
-    this.currency = this.config.get(`accounts.${this.account}.currency`);
-    if (this.config.has("run.fromDate"))
-      this.fromDate = DateTime.fromISO(this.config.get("run.fromDate"));
-    const parser = parse({
-      delimiter: config.get(`models.${this.model}.delimiter`) as string[1],
-      // encoding: config.get("models.encoding") as string,
-      from_line: config.get(`models.${this.model}.fromLine`) as number,
-      to_line: config.get(`models.${this.model}.toLine`) as number,
-      relaxQuotes: true,
-    });
-
-    parser
-      .on("error", (error: Error) => {
-        console.error(error);
-        exit(1);
-      })
-      .on("data", (line: any) => {
-        // console.log(line);
-        const statement: Statement = {
-          date: this.getDate(line),
-          payee: this.getPayee(line),
-          category: this.getCategory(line),
-          amount: this.getAmount(line),
-          memo: this.getMemo(line),
-          label: this.getLabel(line),
-          reference: this.getReference(line),
-          account: this.getAccount(line),
-        };
-        let emit = true;
-        if (this.account && this.account != statement.account) {
-          emit = false;
-        }
-        if (this.fromDate && statement.date < this.fromDate) {
-          emit = false;
-        }
-        if (emit) {
-          // console.log(statement);
-          statements.push(statement);
-        }
-      })
-      .on("end", () => {
-        fs.writeFileSync(ofxFilePath, this.outputOfxHeader());
-        if (statements.length)
-          fs.appendFileSync(ofxFilePath, this.outputOfxStatements(statements));
-        fs.appendFileSync(ofxFilePath, this.outputOfxTrailer());
-      });
-    fs.createReadStream(
-      csvFilePath,
-      this.config.get(`models.${this.model}.encoding`)
-    ).pipe(parser);
+      // Generate OFX
+      const ofxGenerator = new OfxGenerator(config, accountId, currency);
+      fs.writeFileSync(ofxFilePath, ofxGenerator.generateHeader());
+      fs.appendFileSync(
+        ofxFilePath,
+        ofxGenerator.generateStatements(statements)
+      );
+      fs.appendFileSync(ofxFilePath, ofxGenerator.generateTrailer());
+    } catch (error) {
+      console.error(error);
+      exit(1);
+    }
   }
 }
 
-if (process.argv.length != 5) {
+function parseArgs(args: string[]): {
+  model: string;
+  input: string;
+  output: string;
+  account?: string;
+  fromDate?: string;
+} {
+  let model = "";
+  let input = "";
+  let output = "";
+  let account: string | undefined;
+  let fromDate: string | undefined;
+
+  for (let i = 2; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--account" && i + 1 < args.length) {
+      account = args[i + 1];
+      i++; // Skip the next argument
+    } else if (arg === "--from-date" && i + 1 < args.length) {
+      fromDate = args[i + 1];
+      i++; // Skip the next argument
+    } else if (!model) {
+      model = arg;
+    } else if (!input) {
+      input = arg;
+    } else if (!output) {
+      output = arg;
+    }
+  }
+
+  return { model, input, output, account, fromDate };
+}
+
+const args = parseArgs(process.argv);
+
+if (!args.model || !args.input || !args.output) {
   console.error(
-    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|-`
+    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|- [--account account-id] [--from-date YYYY-MM-DD]`
   );
   exit(1);
 } else {
   const app = new App(config);
   app
-    .run(process.argv[2], process.argv[3], process.argv[4])
+    .run(args.model, args.input, args.output, args.account, args.fromDate)
     .catch((err: Error) => {
       console.error(err);
       exit(1);

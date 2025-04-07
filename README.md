@@ -7,35 +7,227 @@
 ## Features
 
 - Convert CSV files to OFX format
-- Support for multiple CSV formats
-- Easy to configure using config files
+- Support for multiple CSV formats through configuration
+- Filter transactions by account and date
+- Support for labels and memos
+- Automatic reference generation
+- Configurable date formats and delimiters
 
 ## Installation
 
 To install `csv2ofx`, you can use check it out from GitHub:
 
 ```sh
-gsh clone rylorin/csv2ofx
+git clone rylorin/csv2ofx
+cd csv2ofx
+yarn install
 yarn build
 ```
 
 ## Configuration
 
-`csv2ofx` supports configuration through a configuration file. The configuration file should be in JSON format and can include the following options:
+`csv2ofx` uses a configuration file to define how to parse CSV files and generate OFX output. The configuration is stored in JSON format and supports multiple models for different CSV formats.
 
-- `delimiter`: The delimiter used in the CSV file (default is `,`).
-- `date_format`: The date format used in the CSV file (default is `%Y-%m-%d`).
-- `account_type`: The type of account (e.g., `CHECKING`, `SAVINGS`, `CREDITLINE`).
+### Configuration Structure
 
-Example configuration file (`default.json`):
+```json
+{
+  "run": {
+    "account": "my-account",
+    "fromDate": "2024-01-01"
+  },
+  "accounts": {
+    "my-account": {
+      "bankId": "123456789",
+      "currency": "EUR"
+    }
+  },
+  "models": {
+    "my-model": {
+      "encoding": "utf-8",
+      "delimiter": ";",
+      "dateFormat": "dd/MM/yyyy",
+      "fromLine": 2,
+      "toLine": 1000,
+      "columns": {
+        "date": 1,
+        "payee": 2,
+        "category": 3,
+        "amount": 4,
+        "memo": 5,
+        "label": 6,
+        "reference": 7,
+        "account": 8
+      }
+    }
+  }
+}
+```
+
+### Configuration Options
+
+#### Run Configuration
+
+- `run.account`: The account identifier to filter transactions
+- `run.fromDate`: Optional start date for filtering transactions (ISO format)
+
+#### Account Configuration
+
+- `accounts.{accountId}.bankId`: The bank identifier for the account
+- `accounts.{accountId}.currency`: The currency code (e.g., EUR, USD)
+
+#### Model Configuration
+
+- `models.{modelName}.encoding`: File encoding (e.g., utf-8, latin1)
+- `models.{modelName}.delimiter`: CSV delimiter character
+- `models.{modelName}.dateFormat`: Date format using Luxon format tokens
+- `models.{modelName}.fromLine`: First line to process (1-based)
+- `models.{modelName}.toLine`: Last line to process (1-based)
+- `models.{modelName}.columns`: Column mapping configuration
+
+#### Column Configuration
+
+- `columns.date`: Column index for the date field (1-based)
+- `columns.payee`: Column index for the payee field (1-based)
+- `columns.category`: Column index for the category field (1-based)
+- `columns.amount`: Column index for the amount field (1-based)
+- `columns.memo`: Optional column index for the memo field (1-based)
+- `columns.label`: Optional column index for the label field (1-based)
+- `columns.reference`: Optional column index for the reference field (1-based)
+- `columns.account`: Column index for the account field (1-based)
+
+### Example Configurations
+
+#### Basic Configuration
+
+```json
+{
+  "run": {
+    "account": "checking"
+  },
+  "accounts": {
+    "checking": {
+      "bankId": "123456789",
+      "currency": "EUR"
+    }
+  },
+  "models": {
+    "default": {
+      "encoding": "utf-8",
+      "delimiter": ",",
+      "dateFormat": "yyyy-MM-dd",
+      "fromLine": 2,
+      "columns": {
+        "date": 1,
+        "payee": 2,
+        "category": 3,
+        "amount": 4,
+        "account": 5
+      }
+    }
+  }
+}
+```
+
+#### Advanced Configuration
+
+```json
+{
+  "run": {
+    "account": "savings",
+    "fromDate": "2024-01-01"
+  },
+  "accounts": {
+    "savings": {
+      "bankId": "987654321",
+      "currency": "USD"
+    }
+  },
+  "models": {
+    "bank-export": {
+      "encoding": "latin1",
+      "delimiter": ";",
+      "dateFormat": "dd.MM.yyyy",
+      "fromLine": 2,
+      "toLine": 1000,
+      "columns": {
+        "date": 1,
+        "payee": 2,
+        "category": 3,
+        "amount": 4,
+        "memo": 5,
+        "label": 6,
+        "reference": 7,
+        "account": 8
+      }
+    }
+  }
+}
+```
 
 ## Usage
 
-To convert a CSV file to OFX, use the following command:
+### Basic Usage
 
 ```sh
 csv2ofx model input.csv output.ofx
 ```
+
+### Examples
+
+1. Convert a CSV file using the default model:
+
+```sh
+csv2ofx default transactions.csv output.ofx
+```
+
+2. Convert a CSV file using a specific model:
+
+```sh
+csv2ofx bank-export bank_data.csv output.ofx
+```
+
+3. Convert a CSV file and filter by date:
+
+```sh
+csv2ofx default transactions.csv output.ofx --from-date 2024-01-01
+```
+
+4. Convert a CSV file and filter by account:
+
+```sh
+csv2ofx default transactions.csv output.ofx --account savings
+```
+
+## CSV Format
+
+The CSV file should contain the following columns (order can be configured):
+
+1. Date (in the format specified in the configuration)
+2. Payee
+3. Category
+4. Amount (positive for credits, negative for debits)
+5. Optional: Memo
+6. Optional: Labels (comma-separated)
+7. Optional: Reference
+8. Account
+
+Example CSV:
+
+```csv
+date,payee,category,amount,memo,label,reference,account
+2024-01-01,Supermarket,Groceries,-50.00,Weekly shopping,food,REF123,checking
+2024-01-02,Salary,Income,2000.00,January salary,income,REF124,checking
+```
+
+## OFX Output
+
+The generated OFX file will include:
+
+- Account information
+- Transaction list with dates, amounts, and references
+- Memos combining category and labels
+- Final balance
 
 ## Contributing
 
