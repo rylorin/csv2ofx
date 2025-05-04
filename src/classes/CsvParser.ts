@@ -1,4 +1,4 @@
-import { parse } from "csv-parse";
+import { Options, parse } from "csv-parse";
 import { DateTime } from "luxon";
 import fs from "node:fs";
 import { hashObject } from "../utils/hashUtils";
@@ -28,7 +28,7 @@ export class CsvParser {
     model: string,
     columns: Columns,
     account?: string,
-    fromDate?: DateTime
+    fromDate?: DateTime,
   ) {
     this.configManager = configManager;
     this.model = model;
@@ -93,7 +93,7 @@ export class CsvParser {
     const dateStr = line[col] ?? "";
     const dt = DateTime.fromFormat(
       dateStr,
-      this.configManager.getModelDateFormat(this.model)
+      this.configManager.getModelDateFormat(this.model),
     );
     if (!dt.isValid) {
       throw new Error(`Invalid date format: ${dateStr}`);
@@ -111,13 +111,14 @@ export class CsvParser {
     const statements: Statement[] = [];
 
     return new Promise((resolve, reject) => {
-      const parser = parse({
+      const opts: Options = {
         delimiter: this.configManager.getModelDelimiter(this.model),
         from_line: this.configManager.getModelFromLine(this.model),
         to_line: this.configManager.getModelToLine(this.model),
         relaxQuotes: true,
-      });
-      //   console.log("parser");
+      };
+      const parser = parse(opts);
+      // console.log("parser", opts, this.account, this.fromDate);
       parser
         .on("error", (error: Error) => {
           reject(error);
@@ -159,7 +160,7 @@ export class CsvParser {
         });
       fs.createReadStream(
         csvFilePath,
-        this.configManager.getModelEncoding(this.model)
+        this.configManager.getModelEncoding(this.model),
       ).pipe(parser);
     });
   }

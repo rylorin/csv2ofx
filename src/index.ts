@@ -25,8 +25,8 @@ export class App {
     csvFilePath: string,
     ofxFilePath: string,
     account?: string,
-    fromDate?: string
-  ) {
+    fromDate?: string,
+  ): Promise<void> {
     // console.log(model, csvFilePath, ofxFilePath, account, fromDate);
     try {
       // Get configuration
@@ -43,12 +43,12 @@ export class App {
         model,
         columns,
         accountId,
-        startDate
+        startDate,
       );
       const statements = await csvParser.parseCsv(csvFilePath);
       // console.log(ofxFilePath, statements);
       if (statements.length === 0) {
-        console.log("No statements to process");
+        console.warn("No statements to process!");
         return;
       }
 
@@ -57,7 +57,7 @@ export class App {
       fs.writeFileSync(ofxFilePath, ofxGenerator.generateHeader());
       fs.appendFileSync(
         ofxFilePath,
-        ofxGenerator.generateStatements(statements)
+        ofxGenerator.generateStatements(statements),
       );
       fs.appendFileSync(ofxFilePath, ofxGenerator.generateTrailer());
     } catch (error) {
@@ -105,7 +105,7 @@ const args = parseArgs(process.argv);
 
 if (!args.model || !args.input || !args.output) {
   console.error(
-    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|- [--account account-id] [--from-date YYYY-MM-DD]`
+    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|- [--account account-id] [--from-date YYYY-MM-DD]`,
   );
   exit(1);
 } else {
