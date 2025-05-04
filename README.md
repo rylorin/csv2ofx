@@ -32,13 +32,12 @@ yarn build
 
 ```json
 {
-  "run": {
-    "account": "my-account",
-    "fromDate": "2024-01-01"
-  },
+  "account": "my-account",
+  "from_date": "2001-01-01"
   "accounts": {
     "my-account": {
-      "bankId": "123456789",
+      "acct_id": "123456789",
+      "bank_id": "BANK12345",
       "currency": "EUR"
     }
   },
@@ -68,21 +67,22 @@ yarn build
 
 #### Run Configuration
 
-- `run.account`: The account identifier to filter transactions
-- `run.fromDate`: Optional start date for filtering transactions (ISO format)
+- `account`: The account identifier to filter transactions
+- `from_date`: Optional start date for filtering transactions (ISO format)
 
 #### Account Configuration
 
-- `accounts.{accountId}.bankId`: The bank identifier for the account
+- `accounts.{accountId}.acct_id`: The account identifier for the account
+- `accounts.{accountId}.bank_id`: The bank identifier for the account
 - `accounts.{accountId}.currency`: The currency code (e.g., EUR, USD)
 
 #### Model Configuration
 
 - `models.{modelName}.encoding`: File encoding (e.g., utf-8, latin1)
 - `models.{modelName}.delimiter`: CSV delimiter character
-- `models.{modelName}.dateFormat`: Date format using Luxon format tokens
-- `models.{modelName}.fromLine`: First line to process (1-based)
-- `models.{modelName}.toLine`: Last line to process (1-based)
+- `models.{modelName}.date_format`: Date format using Luxon format tokens
+- `models.{modelName}.from_line`: First line to process (1-based)
+- `models.{modelName}.to_line`: Last line to process (1-based)
 - `models.{modelName}.columns`: Column mapping configuration
 
 #### Column Configuration
@@ -102,12 +102,10 @@ yarn build
 
 ```json
 {
-  "run": {
-    "account": "checking"
-  },
+  "account": "checking"
   "accounts": {
     "checking": {
-      "bankId": "123456789",
+      "bank_id": "123456789",
       "currency": "EUR"
     }
   },
@@ -115,8 +113,8 @@ yarn build
     "default": {
       "encoding": "utf-8",
       "delimiter": ",",
-      "dateFormat": "yyyy-MM-dd",
-      "fromLine": 2,
+      "date_format": "yyyy-MM-dd",
+      "from_line": 2,
       "columns": {
         "date": 1,
         "payee": 2,
@@ -133,13 +131,11 @@ yarn build
 
 ```json
 {
-  "run": {
-    "account": "savings",
-    "fromDate": "2024-01-01"
-  },
+  "account": "savings",
+  "from_date": "2024-01-01",
   "accounts": {
     "savings": {
-      "bankId": "987654321",
+      "bank_id": "987654321",
       "currency": "USD"
     }
   },
@@ -147,9 +143,9 @@ yarn build
     "bank-export": {
       "encoding": "latin1",
       "delimiter": ";",
-      "dateFormat": "dd.MM.yyyy",
-      "fromLine": 2,
-      "toLine": 1000,
+      "date_format": "dd.MM.yyyy",
+      "from_line": 2,
+      "to_line": 1000,
       "columns": {
         "date": 1,
         "payee": 2,
@@ -210,7 +206,7 @@ The CSV file should contain the following columns (order can be configured):
 5. Optional: Memo
 6. Optional: Labels (comma-separated)
 7. Optional: Reference
-8. Account
+8. Optional: Account
 
 Example CSV:
 

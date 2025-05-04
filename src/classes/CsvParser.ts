@@ -46,9 +46,14 @@ export class CsvParser {
     }
   }
 
-  private getAccount(line: CsvLine): string {
-    const col = this.columns.account - 1;
-    return line[col] ?? "";
+  // If the account column is defined, return the value from the line
+  // Otherwise, return undefined
+  private getAccount(line: CsvLine): string | undefined {
+    if (this.columns.account) {
+      const col = this.columns.account - 1;
+      return line[col];
+    }
+    return undefined;
   }
 
   private getLabel(line: CsvLine): string | undefined {
@@ -132,7 +137,11 @@ export class CsvParser {
             };
 
             let emit = true;
-            if (this.account && this.account !== statement.account) {
+            if (
+              this.account &&
+              statement.account &&
+              this.account !== statement.account
+            ) {
               emit = false;
             }
             if (this.fromDate && statement.date < this.fromDate) {

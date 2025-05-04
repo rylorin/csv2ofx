@@ -27,7 +27,7 @@ export class App {
     account?: string,
     fromDate?: string
   ) {
-    console.log(model, csvFilePath, ofxFilePath, account, fromDate);
+    // console.log(model, csvFilePath, ofxFilePath, account, fromDate);
     try {
       // Get configuration
       const accountId = account || this.configManager.getAccount();
@@ -37,7 +37,7 @@ export class App {
         : this.configManager.getFromDate();
 
       // Parse CSV
-      console.log(csvFilePath);
+      // console.log(csvFilePath);
       const csvParser = new CsvParser(
         this.configManager,
         model,
@@ -101,6 +101,7 @@ function parseArgs(args: string[]): {
 }
 
 const args = parseArgs(process.argv);
+// console.log(args);
 
 if (!args.model || !args.input || !args.output) {
   console.error(

@@ -143,13 +143,27 @@ export class ConfigManager {
   }
 
   /**
-   * Gets the bank ID for a specific model
-   * @param account The model name to get bank ID for
+   * Gets the account ID for a specific account
+   * @param account The account name to get account ID for
+   * @returns The account ID string
+   */
+  public getAccountId(account: string): string {
+    return this.getCached(`acctId:${account}`, () => {
+      let acctId = account;
+      if (this.config.has(`accounts.${account}.acct_id`))
+        acctId = this.config.get<string>(`accounts.${account}.acct_id`);
+      return acctId;
+    });
+  }
+
+  /**
+   * Gets the bank ID for a specific account
+   * @param account The account name to get bank ID for
    * @returns The bank ID string
    */
   public getBankId(account: string): string {
     return this.getCached(`bankId:${account}`, () => {
-      const bankId = this.config.get(`accounts.${account}.bank_id`);
+      const bankId = this.config.get<string>(`accounts.${account}.bank_id`);
       if (!bankId) {
         throw new Error(`No bank_id configuration found for model: ${account}`);
       }

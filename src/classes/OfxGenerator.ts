@@ -27,6 +27,7 @@ export class OfxGenerator {
    * @returns The OFX header as a string
    */
   public generateHeader(): string {
+    const acctId = this.configManager.getAccountId(this.account);
     const bankId = this.configManager.getBankId(this.account);
     const currency = this.configManager.getCurrency(this.account);
     const ofx = `<?xml version="1.0" encoding="utf-8" ?>
@@ -52,8 +53,8 @@ export class OfxGenerator {
           <STMTRS>
             <CURDEF>${currency}</CURDEF>
             <BANKACCTFROM>
+              <ACCTID>${acctId}</ACCTID>
               <BANKID>${bankId}</BANKID>
-              <ACCTID>${this.account}</ACCTID>
               <ACCTTYPE>CHECKING</ACCTTYPE>
             </BANKACCTFROM>
 `;
@@ -84,7 +85,7 @@ export class OfxGenerator {
                 <NAME>${formatString(stmt.payee)}</NAME>
 `;
     if (memo2.length)
-      ofx += `                <MEMO>${memo2.join(" /")}</MEMO>
+      ofx += `                <MEMO>${memo2.join(" / ")}</MEMO>
 `;
     ofx += `              </STMTTRN>
 `;

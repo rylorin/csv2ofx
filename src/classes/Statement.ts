@@ -19,5 +19,5 @@ export interface Statement {
   /** A unique reference for the transaction */
   reference: string;
   /** The account identifier */
-  account: string;
+  account?: string;
 }

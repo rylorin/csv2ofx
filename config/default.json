@@ -1,7 +1,8 @@
 {
   "accounts": {
     "to populate": {
-      "bankId": "BOUSFRPPXXX",
+      "acct_id": "0123456789",
+      "bank_id": "BOUSFRPPXXX",
       "currency": "EUR"
     }
   },
