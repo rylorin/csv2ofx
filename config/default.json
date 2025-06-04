@@ -11,6 +11,7 @@
       "delimiter": "\t",
       "encoding": "utf16le",
       "from_line": 2,
+      "to_line": null,
       "date_format": "dd/MM/yyyy",
       "columns": {
         "date": 1,

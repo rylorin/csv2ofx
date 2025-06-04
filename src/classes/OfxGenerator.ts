@@ -31,32 +31,32 @@ export class OfxGenerator {
     const bankId = this.configManager.getBankId(this.account);
     const currency = this.configManager.getCurrency(this.account);
     const ofx = `<?xml version="1.0" encoding="utf-8" ?>
-    <?OFX OFXHEADER="200" VERSION="202" SECURITY="NONE" OLDFILEUID="NONE" NEWFILEUID="NONE"?>
-    <OFX>
-      <SIGNONMSGSRSV1>
-        <SONRS>
-          <STATUS>
-            <CODE>0</CODE>
-            <SEVERITY>INFO</SEVERITY>
-          </STATUS>
-          <DTSERVER>${this.formatDate(DateTime.now())}</DTSERVER>
-          <LANGUAGE>ENG</LANGUAGE>
-        </SONRS>
-      </SIGNONMSGSRSV1>
-      <BANKMSGSRSV1>
-        <STMTTRNRS>
-          <TRNUID>0</TRNUID>
-          <STATUS>
-            <CODE>0</CODE>
-            <SEVERITY>INFO</SEVERITY>
-          </STATUS>
-          <STMTRS>
-            <CURDEF>${currency}</CURDEF>
-            <BANKACCTFROM>
-              <ACCTID>${acctId}</ACCTID>
-              <BANKID>${bankId}</BANKID>
-              <ACCTTYPE>CHECKING</ACCTTYPE>
-            </BANKACCTFROM>
+<?OFX OFXHEADER="200" VERSION="202" SECURITY="NONE" OLDFILEUID="NONE" NEWFILEUID="NONE"?>
+<OFX>
+  <SIGNONMSGSRSV1>
+    <SONRS>
+      <STATUS>
+        <CODE>0</CODE>
+        <SEVERITY>INFO</SEVERITY>
+      </STATUS>
+      <DTSERVER>${this.formatDate(DateTime.now())}</DTSERVER>
+      <LANGUAGE>ENG</LANGUAGE>
+    </SONRS>
+  </SIGNONMSGSRSV1>
+  <BANKMSGSRSV1>
+    <STMTTRNRS>
+      <TRNUID>0</TRNUID>
+      <STATUS>
+        <CODE>0</CODE>
+        <SEVERITY>INFO</SEVERITY>
+      </STATUS>
+      <STMTRS>
+        <CURDEF>${currency}</CURDEF>
+        <BANKACCTFROM>
+          <ACCTID>${acctId}</ACCTID>
+          <BANKID>${bankId}</BANKID>
+          <ACCTTYPE>CHECKING</ACCTTYPE>
+        </BANKACCTFROM>
 `;
     return ofx;
   }
@@ -99,12 +99,11 @@ export class OfxGenerator {
    * @throws Error if the statements array is empty
    */
   public generateStatements(statements: Statement[]): string {
-    if (statements.length === 0) {
-      throw new Error("Cannot generate OFX for empty statements array");
-    }
-
-    let dtFrom = statements[0].date;
-    let dtTo = statements[0].date;
+    // if (statements.length === 0) {
+    //   throw new Error("Cannot generate OFX for empty statements array");
+    // }
+    let dtFrom = statements.length > 0 ? statements[0].date : DateTime.fromISO("2001-01-01");
+    let dtTo = statements.length > 0 ? statements[0].date : DateTime.fromISO("2001-01-01");
     statements.forEach((stmt: Statement) => {
       if (stmt.date < dtFrom) {
         dtFrom = stmt.date;
@@ -132,14 +131,14 @@ export class OfxGenerator {
    */
   public generateTrailer(): string {
     const ofx = `
-            <LEDGERBAL>
-              <BALAMT>${this.finalBalance}</BALAMT>
-              <DTASOF>${this.formatDate(DateTime.now())}</DTASOF>
-            </LEDGERBAL>
-          </STMTRS>
-        </STMTTRNRS>
-      </BANKMSGSRSV1>
-    </OFX>
+        <LEDGERBAL>
+          <BALAMT>${this.finalBalance}</BALAMT>
+          <DTASOF>${this.formatDate(DateTime.now())}</DTASOF>
+        </LEDGERBAL>
+      </STMTRS>
+    </STMTTRNRS>
+  </BANKMSGSRSV1>
+</OFX>
     `;
     return ofx;
   }

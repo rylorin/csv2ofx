@@ -32,33 +32,21 @@ export class App {
       // Get configuration
       const accountId = account || this.configManager.getAccount();
       const columns = this.configManager.getColumns(model);
-      const startDate = fromDate
-        ? DateTime.fromFormat(fromDate, "yyyy-MM-dd")
-        : this.configManager.getFromDate();
+      const startDate = fromDate ? DateTime.fromFormat(fromDate, "yyyy-MM-dd") : this.configManager.getFromDate();
 
       // Parse CSV
       // console.log(csvFilePath);
-      const csvParser = new CsvParser(
-        this.configManager,
-        model,
-        columns,
-        accountId,
-        startDate,
-      );
+      const csvParser = new CsvParser(this.configManager, model, columns, accountId, startDate);
       const statements = await csvParser.parseCsv(csvFilePath);
       // console.log(ofxFilePath, statements);
       if (statements.length === 0) {
         console.warn("No statements to process!");
-        return;
       }
 
       // Generate OFX
       const ofxGenerator = new OfxGenerator(this.configManager, accountId);
       fs.writeFileSync(ofxFilePath, ofxGenerator.generateHeader());
-      fs.appendFileSync(
-        ofxFilePath,
-        ofxGenerator.generateStatements(statements),
-      );
+      fs.appendFileSync(ofxFilePath, ofxGenerator.generateStatements(statements));
       fs.appendFileSync(ofxFilePath, ofxGenerator.generateTrailer());
     } catch (error) {
       console.error(error);
@@ -110,10 +98,8 @@ if (!args.model || !args.input || !args.output) {
   exit(1);
 } else {
   const app = new App(config);
-  app
-    .run(args.model, args.input, args.output, args.account, args.fromDate)
-    .catch((err: Error) => {
-      console.error(err);
-      exit(1);
-    });
+  app.run(args.model, args.input, args.output, args.account, args.fromDate).catch((err: Error) => {
+    console.error(err);
+    exit(1);
+  });
 }

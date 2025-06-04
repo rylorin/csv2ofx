@@ -23,13 +23,7 @@ export class CsvParser {
    * @param account Optional account filter
    * @param fromDate Optional date filter
    */
-  constructor(
-    configManager: ConfigManager,
-    model: string,
-    columns: Columns,
-    account?: string,
-    fromDate?: DateTime,
-  ) {
+  constructor(configManager: ConfigManager, model: string, columns: Columns, account?: string, fromDate?: DateTime) {
     this.configManager = configManager;
     this.model = model;
     this.columns = columns;
@@ -91,10 +85,7 @@ export class CsvParser {
   private getDate(line: CsvLine): DateTime {
     const col = this.columns.date - 1;
     const dateStr = line[col] ?? "";
-    const dt = DateTime.fromFormat(
-      dateStr,
-      this.configManager.getModelDateFormat(this.model),
-    );
+    const dt = DateTime.fromFormat(dateStr, this.configManager.getModelDateFormat(this.model));
     if (!dt.isValid) {
       throw new Error(`Invalid date format: ${dateStr}`);
     }
@@ -138,11 +129,8 @@ export class CsvParser {
             };
 
             let emit = true;
-            if (
-              this.account &&
-              statement.account &&
-              this.account !== statement.account
-            ) {
+            if (this.account && statement.account && this.account !== statement.account) {
+              // console.log(this.account, statement);
               emit = false;
             }
             if (this.fromDate && statement.date < this.fromDate) {
@@ -158,10 +146,7 @@ export class CsvParser {
         .on("end", () => {
           resolve(statements);
         });
-      fs.createReadStream(
-        csvFilePath,
-        this.configManager.getModelEncoding(this.model),
-      ).pipe(parser);
+      fs.createReadStream(csvFilePath, this.configManager.getModelEncoding(this.model)).pipe(parser);
     });
   }
 }
