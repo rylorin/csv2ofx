@@ -4,10 +4,7 @@
  * @returns The formatted string with special characters escaped
  */
 export function formatString(str: string): string {
-  return str
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
+  return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
 /**

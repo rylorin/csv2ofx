@@ -10,10 +10,7 @@ interface Cache<T> {
 export class ConfigManager {
   private readonly config: IConfig;
   private readonly cacheTTL: number = 10 * 60_000; // 10 minutes in milliseconds
-  private readonly cache: Map<string, Cache<any>> = new Map<
-    string,
-    Cache<any>
-  >();
+  private readonly cache: Map<string, Cache<any>> = new Map<string, Cache<any>>();
 
   /**
    * Creates a new ConfigManager instance
@@ -74,9 +71,7 @@ export class ConfigManager {
     return this.getCached(`currency:${account}`, () => {
       const currency = this.config.get(`accounts.${account}.currency`);
       if (!currency) {
-        throw new Error(
-          `No currency configuration found for model: ${account}`,
-        );
+        throw new Error(`No currency configuration found for model: ${account}`);
       }
       return currency as string;
     });
@@ -105,9 +100,7 @@ export class ConfigManager {
     return this.getCached(`dateFormat:${model}`, () => {
       const dateFormat = this.config.get(`models.${model}.date_format`);
       if (!dateFormat) {
-        throw new Error(
-          `No date_format configuration found for model: ${model}`,
-        );
+        throw new Error(`No date_format configuration found for model: ${model}`);
       }
       return dateFormat as string;
     });
@@ -135,9 +128,7 @@ export class ConfigManager {
    */
   public getModelEncoding(model: string): BufferEncoding {
     return this.getCached(`encoding:${model}`, () => {
-      const encoding = this.config.get<BufferEncoding>(
-        `models.${model}.encoding`,
-      );
+      const encoding = this.config.get<BufferEncoding>(`models.${model}.encoding`);
       if (!encoding) {
         throw new Error(`No encoding configuration found for model: ${model}`);
       }
@@ -196,8 +187,7 @@ export class ConfigManager {
    */
   public getModelToLine(model: string): number | undefined {
     return this.getCached(`toLine:${model}`, () => {
-      if (this.config.has(`models.${model}.to_line`))
-        return this.config.get<number>(`models.${model}.to_line`);
+      if (this.config.has(`models.${model}.to_line`)) return this.config.get<number>(`models.${model}.to_line`);
     });
   }
 }
