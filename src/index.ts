@@ -26,6 +26,7 @@ export class App {
     ofxFilePath: string,
     account?: string,
     fromDate?: string,
+    toDate?: string,
   ): Promise<void> {
     // console.log(model, csvFilePath, ofxFilePath, account, fromDate);
     try {
@@ -33,10 +34,11 @@ export class App {
       const accountId = account || this.configManager.getAccount();
       const columns = this.configManager.getColumns(model);
       const startDate = fromDate ? DateTime.fromFormat(fromDate, "yyyy-MM-dd") : this.configManager.getFromDate();
+      const endDate = toDate ? DateTime.fromFormat(toDate, "yyyy-MM-dd") : this.configManager.getToDate();
 
       // Parse CSV
       // console.log(csvFilePath);
-      const csvParser = new CsvParser(this.configManager, model, columns, accountId, startDate);
+      const csvParser = new CsvParser(this.configManager, model, columns, accountId, startDate, endDate);
       const statements = await csvParser.parseCsv(csvFilePath);
       // console.log(ofxFilePath, statements);
       if (statements.length === 0) {
@@ -61,12 +63,14 @@ function parseArgs(args: string[]): {
   output: string;
   account?: string;
   fromDate?: string;
+  toDate?: string;
 } {
   let model = "";
   let input = "";
   let output = "";
   let account: string | undefined;
   let fromDate: string | undefined;
+  let toDate: string | undefined;
 
   for (let i = 2; i < args.length; i++) {
     const arg = args[i];
@@ -75,6 +79,9 @@ function parseArgs(args: string[]): {
       i++; // Skip the next argument
     } else if (arg === "--from-date" && i + 1 < args.length) {
       fromDate = args[i + 1];
+      i++; // Skip the next argument
+    } else if (arg === "--to-date" && i + 1 < args.length) {
+      toDate = args[i + 1];
       i++; // Skip the next argument
     } else if (!model) {
       model = arg;
@@ -85,7 +92,7 @@ function parseArgs(args: string[]): {
     }
   }
 
-  return { model, input, output, account, fromDate };
+  return { model, input, output, account, fromDate, toDate };
 }
 
 const args = parseArgs(process.argv);
@@ -93,12 +100,12 @@ const args = parseArgs(process.argv);
 
 if (!args.model || !args.input || !args.output) {
   console.error(
-    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|- [--account account-id] [--from-date YYYY-MM-DD]`,
+    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|- [--account account-id] [--from-date YYYY-MM-DD] [--to-date YYYY-MM-DD]`,
   );
   exit(1);
 } else {
   const app = new App(config);
-  app.run(args.model, args.input, args.output, args.account, args.fromDate).catch((err: Error) => {
+  app.run(args.model, args.input, args.output, args.account, args.fromDate, args.toDate).catch((err: Error) => {
     console.error(err);
     exit(1);
   });

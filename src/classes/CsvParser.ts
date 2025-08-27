@@ -13,6 +13,7 @@ export class CsvParser {
   private readonly model: string;
   private readonly columns: Columns;
   private readonly fromDate?: DateTime;
+  private readonly toDate?: DateTime;
   private readonly account?: string;
 
   /**
@@ -21,14 +22,23 @@ export class CsvParser {
    * @param model The model name to use for parsing
    * @param columns The column mapping configuration
    * @param account Optional account filter
-   * @param fromDate Optional date filter
+   * @param fromDate Optional start date filter
+   * @param toDate Optional end date filter
    */
-  constructor(configManager: ConfigManager, model: string, columns: Columns, account?: string, fromDate?: DateTime) {
+  constructor(
+    configManager: ConfigManager,
+    model: string,
+    columns: Columns,
+    account?: string,
+    fromDate?: DateTime,
+    toDate?: DateTime,
+  ) {
     this.configManager = configManager;
     this.model = model;
     this.columns = columns;
     this.account = account;
     this.fromDate = fromDate;
+    this.toDate = toDate;
   }
 
   private getReference(line: CsvLine): string {
@@ -134,6 +144,9 @@ export class CsvParser {
               emit = false;
             }
             if (this.fromDate && statement.date < this.fromDate) {
+              emit = false;
+            }
+            if (this.toDate && statement.date > this.toDate) {
               emit = false;
             }
             if (emit) {

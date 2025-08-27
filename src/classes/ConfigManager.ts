@@ -92,6 +92,20 @@ export class ConfigManager {
   }
 
   /**
+   * Gets the end date for filtering statements
+   * @returns The end date as a DateTime object
+   */
+  public getToDate(): DateTime {
+    return this.getCached("to_date", () => {
+      const toDate = this.config.get<string>("to_date");
+      if (!toDate) {
+        throw new Error("No to_date configuration found");
+      }
+      return DateTime.fromFormat(toDate as string, "yyyy-MM-dd");
+    });
+  }
+
+  /**
    * Gets the date format for a specific model
    * @param model The model name to get date format for
    * @returns The date format string
