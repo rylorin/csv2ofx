@@ -151,17 +151,40 @@ export class ConfigManager {
   }
 
   /**
+   * Gets the decimals separator for a specific model
+   * @param model The model name to get encoding for
+   * @returns The separator string
+   */
+  public getModelDecimalsSeparator(model: string): string {
+    return this.getCached(`separator:${model}`, () =>
+      this.config.has(`models.${model}.separator`) ? this.config.get<string>(`models.${model}.separator`) : ".",
+    );
+  }
+
+  /**
+   * Gets the account filter for a specific account
+   * @param account The account name to get account ID for
+   * @returns The filter string
+   */
+  public getAccountFilter(account?: string): string | undefined {
+    if (account) {
+      return this.getCached(`filter:${account}`, () =>
+        this.config.has(`accounts.${account}.filter`) ? this.config.get<string>(`accounts.${account}.filter`) : account,
+      );
+    } else {
+      return undefined;
+    }
+  }
+
+  /**
    * Gets the account ID for a specific account
    * @param account The account name to get account ID for
    * @returns The account ID string
    */
   public getAccountId(account: string): string {
-    return this.getCached(`acctId:${account}`, () => {
-      let acctId = account;
-      if (this.config.has(`accounts.${account}.acct_id`))
-        acctId = this.config.get<string>(`accounts.${account}.acct_id`);
-      return acctId;
-    });
+    return this.getCached(`acctId:${account}`, () =>
+      this.config.has(`accounts.${account}.acct_id`) ? this.config.get<string>(`accounts.${account}.acct_id`) : account,
+    );
   }
 
   /**
@@ -186,11 +209,7 @@ export class ConfigManager {
    */
   public getModelFromLine(model: string): number {
     return this.getCached(`fromLine:${model}`, () => {
-      const fromLine = this.config.get<number>(`models.${model}.from_line`);
-      if (fromLine === undefined) {
-        throw new Error(`No from_line configuration found for model: ${model}`);
-      }
-      return fromLine as number;
+      return this.config.has(`models.${model}.from_line`) ? this.config.get<number>(`models.${model}.from_line`) : 1;
     });
   }
 

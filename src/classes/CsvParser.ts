@@ -15,6 +15,9 @@ export class CsvParser {
   private readonly fromDate?: DateTime;
   private readonly toDate?: DateTime;
   private readonly account?: string;
+  private readonly accountFilter?: string;
+  private readonly decimals_separator: string;
+  private readonly thousands_separator: string;
 
   /**
    * Creates a new CsvParser instance
@@ -37,8 +40,11 @@ export class CsvParser {
     this.model = model;
     this.columns = columns;
     this.account = account;
+    this.accountFilter = configManager.getAccountFilter(account);
     this.fromDate = fromDate;
     this.toDate = toDate;
+    this.decimals_separator = configManager.getModelDecimalsSeparator(model);
+    this.thousands_separator = this.decimals_separator == "." ? "," : ".";
   }
 
   private getReference(line: CsvLine): string {
@@ -79,7 +85,9 @@ export class CsvParser {
   private getAmount(line: CsvLine): number {
     const col = this.columns.amount - 1;
     const amountStr = line[col] ?? "0";
-    return parseFloat(amountStr.replaceAll(".", "").replace(",", "."));
+    const amount = parseFloat(amountStr.replaceAll(this.thousands_separator, "").replace(this.decimals_separator, "."));
+    // console.log("amount", amountStr, amount);
+    return amount;
   }
 
   private getCategory(line: CsvLine): string {
@@ -139,7 +147,7 @@ export class CsvParser {
             };
 
             let emit = true;
-            if (this.account && statement.account && this.account !== statement.account) {
+            if (this.accountFilter && statement.account && this.accountFilter !== statement.account) {
               // console.log(this.account, statement);
               emit = false;
             }

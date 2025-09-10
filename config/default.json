@@ -1,13 +1,13 @@
 {
   "accounts": {
-    "to populate": {
-      "acct_id": "0123456789",
-      "bank_id": "BOUSFRPPXXX",
-      "currency": "EUR"
+    "example": {
+      "bank_id": "BANKID",
+      "currency": "EUR",
+      "filter": null
     }
   },
   "models": {
-    "linxo": {
+    "Linxo": {
       "delimiter": "\t",
       "encoding": "utf16le",
       "from_line": 2,
@@ -21,22 +21,23 @@
         "memo": 5,
         "label": 7,
         "account": 8
-      }
+      },
+      "separator": ","
     },
     "Revolut": {
       "delimiter": ",",
       "encoding": "utf8",
-      "from_Line": 2,
+      "from_line": 2,
       "date_format": "yyyy-MM-dd HH:mm:ss",
       "columns": {
         "date": 3,
         "payee": 5,
         "category": 1,
         "amount": 6,
-        "account": 2
+        "account": 9
       }
     }
   },
-  "account": "to populate",
+  "account": "example",
   "from_date": "2001-01-01"
 }
