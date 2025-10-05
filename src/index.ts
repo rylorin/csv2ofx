@@ -6,9 +6,9 @@ import { ConfigManager } from "./classes/ConfigManager";
 import { CsvParser } from "./classes/CsvParser";
 import { OfxGenerator } from "./classes/OfxGenerator";
 
-// Load env vars
-import dotenv from "dotenv";
-dotenv.config();
+// // Load env vars
+// import dotenv from "dotenv";
+// dotenv.config();
 
 // Load config
 import { default as config } from "config";
