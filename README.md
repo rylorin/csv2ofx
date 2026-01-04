@@ -186,7 +186,7 @@ csv2ofx bank-export bank_data.csv output.ofx
 3. Convert a CSV file and filter by date:
 
 ```sh
-csv2ofx default transactions.csv output.ofx --from-date 2024-01-01
+csv2ofx default transactions.csv output.ofx --fromDate 2024-01-01
 ```
 
 4. Convert a CSV file and filter by account:

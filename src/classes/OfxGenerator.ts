@@ -103,7 +103,7 @@ export class OfxGenerator {
     //   throw new Error("Cannot generate OFX for empty statements array");
     // }
     let dtFrom: DateTime = this.configManager.getFromDate() || DateTime.fromISO("2001-01-01");
-    let dtTo = statements.length > 0 ? statements[0].date : DateTime.fromISO("2001-01-01");
+    let dtTo = statements.length > 0 ? statements[0].date : dtFrom;
     statements.forEach((stmt: Statement) => {
       if (stmt.date < dtFrom) {
         dtFrom = stmt.date;

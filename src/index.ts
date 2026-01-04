@@ -77,10 +77,10 @@ function parseArgs(args: string[]): {
     if (arg === "--account" && i + 1 < args.length) {
       account = args[i + 1];
       i++; // Skip the next argument
-    } else if (arg === "--from-date" && i + 1 < args.length) {
+    } else if (arg === "--fromDate" && i + 1 < args.length) {
       fromDate = args[i + 1];
       i++; // Skip the next argument
-    } else if (arg === "--to-date" && i + 1 < args.length) {
+    } else if (arg === "--toDate" && i + 1 < args.length) {
       toDate = args[i + 1];
       i++; // Skip the next argument
     } else if (!model) {
@@ -100,7 +100,7 @@ const args = parseArgs(process.argv);
 
 if (!args.model || !args.input || !args.output) {
   console.error(
-    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|- [--account account-id] [--from-date YYYY-MM-DD] [--to-date YYYY-MM-DD]`,
+    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|- [--account account-id] [--fromDate YYYY-MM-DD] [--toDate YYYY-MM-DD]`,
   );
   exit(1);
 } else {
