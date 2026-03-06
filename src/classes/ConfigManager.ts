@@ -1,4 +1,4 @@
-import { IConfig } from "config";
+import { Config as IConfig } from "config";
 import { DateTime } from "luxon";
 import { Columns } from "./Columns";
 

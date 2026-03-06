@@ -6,7 +6,7 @@ import { Statement } from "./Statement";
 export class OfxGenerator {
   private readonly configManager: ConfigManager;
   private readonly account: string;
-  private finalBalance: number = 0;
+  private finalBalance = 0;
 
   /**
    * Creates a new OfxGenerator instance

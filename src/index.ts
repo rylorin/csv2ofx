@@ -1,4 +1,4 @@
-import { IConfig } from "config";
+import { Config as IConfig } from "config";
 import { DateTime } from "luxon";
 import fs from "node:fs";
 import { exit } from "node:process";
@@ -17,7 +17,7 @@ export class App {
   private configManager: ConfigManager;
 
   constructor(config: IConfig) {
-    this.configManager = new ConfigManager(config);
+    this.configManager = new ConfigManager(config);  
   }
 
   public async run(
