@@ -17,7 +17,7 @@ export class App {
   private configManager: ConfigManager;
 
   constructor(config: IConfig) {
-    this.configManager = new ConfigManager(config);  
+    this.configManager = new ConfigManager(config);
   }
 
   public async run(
