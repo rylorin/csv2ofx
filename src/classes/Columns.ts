@@ -19,10 +19,6 @@ export interface Columns {
   reference: number | null;
   /** Column index for the account field (1-based) */
   account: number;
-  /** Optional column index for gross total amount field (1-based) */
-  gross_amount?: number | null;
-  /** Optional column index for gross total currency field (1-based) */
-  gross_currency?: number | null;
   /** Optional column index for currency conversion fee amount field (1-based) */
   fee_amount?: number | null;
   /** Optional column index for currency conversion fee currency field (1-based) */

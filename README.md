@@ -12,6 +12,7 @@
 - Support for labels and memos
 - Automatic reference generation
 - Configurable date formats and delimiters
+- **New**: Support for PortfolioPerformance CSV output via `--format csv` option
 
 ## Installation
 
@@ -96,6 +97,18 @@ yarn build
 - `columns.reference`: Optional column index for the reference field (1-based)
 - `columns.account`: Column index for the account field (1-based)
 
+### ... and for Trading 212 CSV export format to Porfolio Performance CSV import format
+
+- `columns.fee_amount`: Column index for the conversion fee amount field (1-based)
+- `columns.fee_currency`: Column index for the conversion fee currency field (1-based)
+- `columns.exchange_rate`: Column index for the exchange rate field (1-based)
+- `columns.currency`: Column index for the operation currency field (1-based)
+- `columns.ticker`: Column index for the stock ticker symbol field (1-based)
+- `columns.isin`: Column index for the ISIN security identifier field (1-based)
+- `columns.security_name`: Column index for the security name/text field (1-based)
+- `columns.shares`: Column index for the number of shares/units traded field (1-based)
+- `columns.price`: Column index for the price per unit/shares field (1-based)
+
 ### Example Configurations
 
 #### Basic Configuration
@@ -163,21 +176,23 @@ yarn build
 
 ## Usage
 
+The command now accepts an optional `--format` (or `-f`) argument to choose the output format. The default format is `ofx`, but you can generate PortfolioPerformance‑compatible CSV files by specifying `--format csv`.
+
 ### Basic Usage
 
 ```sh
-csv2ofx model input.csv output.ofx
+csv2ofx model input.csv output.[ofx|csv]
 ```
 
 ### Examples
 
-1. Convert a CSV file using the default model:
+1. Convert a CSV file using the default model (OFX output):
 
 ```sh
 csv2ofx default transactions.csv output.ofx
 ```
 
-2. Convert a CSV file using a specific model:
+2. Convert a CSV file using a specific model (OFX output):
 
 ```sh
 csv2ofx bank-export bank_data.csv output.ofx
@@ -195,26 +210,28 @@ csv2ofx default transactions.csv output.ofx --fromDate 2026-01-01
 csv2ofx default transactions.csv output.ofx --account savings
 ```
 
+5. **Generate PortfolioPerformance CSV output**:
+
+```sh
+csv2ofx default transactions.csv output.csv --format csv
+```
+
+### Options
+
+- `--format ofx|csv` (default: `ofx`) – Choose output format. `csv` produces a PortfolioPerformance‑compatible CSV file.
+- `--account account-id` – Optional account filter.
+- `--fromDate YYYY-MM-DD` – Optional start date filter.
+- `--toDate YYYY-MM-DD` – Optional end date filter.
+
 ## CSV Format
 
-The CSV file should contain the following columns (order can be configured):
+When generating CSV output, the tool produces a PortfolioPerformance‑compatible file with the following header:
 
-1. Date (in the format specified in the configuration)
-2. Payee
-3. Category
-4. Amount (positive for credits, negative for debits)
-5. Optional: Memo
-6. Optional: Labels (comma-separated)
-7. Optional: Reference
-8. Optional: Account
-
-Example CSV:
-
-```csv
-date,payee,category,amount,memo,label,reference,account
-2024-01-01,Supermarket,Groceries,-50.00,Weekly shopping,food,REF123,checking
-2024-01-02,Salary,Income,2000.00,January salary,income,REF124,checking
 ```
+Date;Type;Note;Symbole boursier;ISIN;Nom du titre;Parts;Prix;Montant brut en devise;Frais;Impôts / Taxes;Valeur;Devise de l'opération;Taux de change
+```
+
+The parser extracts optional currency conversion fields (exchange rate, fee amount, etc.) from the input file to populate the appropriate columns.
 
 ## OFX Output
 
