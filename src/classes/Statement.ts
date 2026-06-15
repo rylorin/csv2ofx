@@ -20,4 +20,22 @@ export interface Statement {
   reference: string;
   /** The account identifier */
   account?: string;
+  /** Optional currency conversion fee amount */
+  feeAmount?: number;
+  /** Optional currency conversion fee currency */
+  feeCurrency?: string;
+  /** Optional exchange rate */
+  exchangeRate?: number;
+  /** Optional currency */
+  currency?: string;
+  /** Optional ticker */
+  ticker?: string;
+  /** Optional ISIN */
+  isin?: string;
+  /** Optional security name */
+  securityName?: string;
+  /** Optional shares */
+  shares?: number;
+  /** Optional price */
+  price?: number;
 }

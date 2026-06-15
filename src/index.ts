@@ -24,6 +24,7 @@ export class App {
     model: string,
     csvFilePath: string,
     ofxFilePath: string,
+    format = "ofx",
     account?: string,
     fromDate?: string,
     toDate?: string,
@@ -31,25 +32,43 @@ export class App {
     // console.log(model, csvFilePath, ofxFilePath, account, fromDate);
     try {
       // Get configuration
-      const accountId = account || this.configManager.getAccount();
       const columns = this.configManager.getColumns(model);
-      const startDate = fromDate ? DateTime.fromFormat(fromDate, "yyyy-MM-dd") : this.configManager.getFromDate();
-      const endDate = toDate ? DateTime.fromFormat(toDate, "yyyy-MM-dd") : this.configManager.getToDate();
+      
+      let startDate: DateTime | undefined;
+      try {
+        startDate = fromDate ? DateTime.fromFormat(fromDate, "yyyy-MM-dd") : this.configManager.getFromDate();
+      } catch {
+        // Ignored if not configured
+      }
+
+      let endDate: DateTime | undefined;
+      try {
+        endDate = toDate ? DateTime.fromFormat(toDate, "yyyy-MM-dd") : this.configManager.getToDate();
+      } catch {
+        // Ignored if not configured
+      }
 
       // Parse CSV
       // console.log(csvFilePath);
-      const csvParser = new CsvParser(this.configManager, model, columns, accountId, startDate, endDate);
+      const csvParser = new CsvParser(this.configManager, model, columns, account, startDate, endDate);
       const statements = await csvParser.parseCsv(csvFilePath);
       // console.log(ofxFilePath, statements);
       if (statements.length === 0) {
         console.warn("No statements to process!");
       }
 
-      // Generate OFX
-      const ofxGenerator = new OfxGenerator(this.configManager, accountId);
-      fs.writeFileSync(ofxFilePath, ofxGenerator.generateHeader());
-      fs.appendFileSync(ofxFilePath, ofxGenerator.generateStatements(statements));
-      fs.appendFileSync(ofxFilePath, ofxGenerator.generateTrailer());
+      // Generate Output
+      if (format === "csv") {
+        const CsvGenerator = (await import("./classes/CsvGenerator")).CsvGenerator;
+        const csvGenerator = new CsvGenerator();
+        fs.writeFileSync(ofxFilePath, csvGenerator.generate(statements));
+      } else {
+        const accountIdForOfx = account || this.configManager.getAccount();
+        const ofxGenerator = new OfxGenerator(this.configManager, accountIdForOfx);
+        fs.writeFileSync(ofxFilePath, ofxGenerator.generateHeader());
+        fs.appendFileSync(ofxFilePath, ofxGenerator.generateStatements(statements));
+        fs.appendFileSync(ofxFilePath, ofxGenerator.generateTrailer());
+      }
     } catch (error) {
       console.error(error);
       exit(1);
@@ -61,6 +80,7 @@ function parseArgs(args: string[]): {
   model: string;
   input: string;
   output: string;
+  format: string;
   account?: string;
   fromDate?: string;
   toDate?: string;
@@ -68,6 +88,7 @@ function parseArgs(args: string[]): {
   let model = "";
   let input = "";
   let output = "";
+  let format = "ofx";
   let account: string | undefined;
   let fromDate: string | undefined;
   let toDate: string | undefined;
@@ -76,6 +97,9 @@ function parseArgs(args: string[]): {
     const arg = args[i];
     if (arg === "--account" && i + 1 < args.length) {
       account = args[i + 1];
+      i++; // Skip the next argument
+    } else if ((arg === "--format" || arg === "-f") && i + 1 < args.length) {
+      format = args[i + 1].toLowerCase();
       i++; // Skip the next argument
     } else if (arg === "--fromDate" && i + 1 < args.length) {
       fromDate = args[i + 1];
@@ -92,7 +116,7 @@ function parseArgs(args: string[]): {
     }
   }
 
-  return { model, input, output, account, fromDate, toDate };
+  return { model, input, output, format, account, fromDate, toDate };
 }
 
 const args = parseArgs(process.argv);
@@ -100,12 +124,12 @@ const args = parseArgs(process.argv);
 
 if (!args.model || !args.input || !args.output) {
   console.error(
-    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|- [--account account-id] [--fromDate YYYY-MM-DD] [--toDate YYYY-MM-DD]`,
+    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|- [--format ofx|csv] [--account account-id] [--fromDate YYYY-MM-DD] [--toDate YYYY-MM-DD]`,
   );
   exit(1);
 } else {
   const app = new App(config);
-  app.run(args.model, args.input, args.output, args.account, args.fromDate, args.toDate).catch((err: Error) => {
+  app.run(args.model, args.input, args.output, args.format, args.account, args.fromDate, args.toDate).catch((err: Error) => {
     console.error(err);
     exit(1);
   });

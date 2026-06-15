@@ -85,9 +85,29 @@ export class CsvParser {
   private getAmount(line: CsvLine): number {
     const col = this.columns.amount - 1;
     const amountStr = line[col] ?? "0";
+    if (amountStr.trim() === "") return 0;
     const amount = parseFloat(amountStr.replaceAll(this.thousands_separator, "").replace(this.decimals_separator, "."));
     // console.log("amount", amountStr, amount);
-    return amount;
+    return isNaN(amount) ? 0 : amount;
+  }
+
+  private getNumberField(line: CsvLine, colIndex?: number | null): number | undefined {
+    if (colIndex) {
+      const str = line[colIndex - 1];
+      if (str && str.trim() !== "") {
+        const val = parseFloat(str.replaceAll(this.thousands_separator, "").replace(this.decimals_separator, "."));
+        return isNaN(val) ? undefined : val;
+      }
+    }
+    return undefined;
+  }
+
+  private getStringField(line: CsvLine, colIndex?: number | null): string | undefined {
+    if (colIndex) {
+      const str = line[colIndex - 1];
+      return str && str.trim() !== "" ? str : undefined;
+    }
+    return undefined;
   }
 
   private getCategory(line: CsvLine): string {
@@ -103,7 +123,7 @@ export class CsvParser {
   private getDate(line: CsvLine): DateTime {
     const col = this.columns.date - 1;
     const dateStr = line[col] ?? "";
-    const dt = DateTime.fromFormat(dateStr, this.configManager.getModelDateFormat(this.model));
+    const dt = DateTime.fromFormat(dateStr, this.configManager.getModelDateFormat(this.model), { zone: "GMT" });
     if (!dt.isValid) {
       throw new Error(`Invalid date format: ${dateStr}`);
     }
@@ -144,6 +164,15 @@ export class CsvParser {
               label: this.getLabel(line),
               reference: this.getReference(line),
               account: this.getAccount(line),
+              feeAmount: this.getNumberField(line, this.columns.fee_amount),
+              feeCurrency: this.getStringField(line, this.columns.fee_currency),
+              exchangeRate: this.getNumberField(line, this.columns.exchange_rate),
+              currency: this.getStringField(line, this.columns.currency),
+              ticker: this.getStringField(line, this.columns.ticker),
+              isin: this.getStringField(line, this.columns.isin),
+              securityName: this.getStringField(line, this.columns.security_name),
+              shares: this.getNumberField(line, this.columns.shares),
+              price: this.getNumberField(line, this.columns.price),
             };
 
             let emit = true;

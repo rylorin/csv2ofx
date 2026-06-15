@@ -2,8 +2,7 @@
   "accounts": {
     "example": {
       "bank_id": "BANKID",
-      "currency": "EUR",
-      "filter": null
+      "currency": "EUR"
     }
   },
   "models": {
@@ -30,12 +29,36 @@
       "from_line": 2,
       "date_format": "yyyy-MM-dd HH:mm:ss",
       "columns": {
+        "category": 1,
         "date": 3,
         "payee": 5,
-        "category": 1,
         "amount": 6,
         "account": 9
       }
+    },
+    "Trading212": {
+      "columns": {
+        "category": 1,
+        "date": 2,
+        "isin": 3,
+        "ticker": 4,
+        "security_name": 5,
+        "memo": 6,
+        "reference": 7,
+        "shares": 8,
+        "price": 9,
+        "exchange_rate": 11,
+        "amount": 12,
+        "currency": 13,
+        "fee_amount": 14,
+        "fee_currency": 15,
+        "payee": 16,
+        "label": 17
+      },
+      "date_format": "yyyy-MM-dd HH:mm:ss",
+      "delimiter": ",",
+      "encoding": "UTF-8",
+      "from_line": 2
     }
   },
   "account": "example",
