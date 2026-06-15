@@ -33,7 +33,7 @@ export class App {
     try {
       // Get configuration
       const columns = this.configManager.getColumns(model);
-      
+
       let startDate: DateTime | undefined;
       try {
         startDate = fromDate ? DateTime.fromFormat(fromDate, "yyyy-MM-dd") : this.configManager.getFromDate();
@@ -129,8 +129,10 @@ if (!args.model || !args.input || !args.output) {
   exit(1);
 } else {
   const app = new App(config);
-  app.run(args.model, args.input, args.output, args.format, args.account, args.fromDate, args.toDate).catch((err: Error) => {
-    console.error(err);
-    exit(1);
-  });
+  app
+    .run(args.model, args.input, args.output, args.format, args.account, args.fromDate, args.toDate)
+    .catch((err: Error) => {
+      console.error(err);
+      exit(1);
+    });
 }
