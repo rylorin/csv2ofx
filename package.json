@@ -6,6 +6,9 @@
   "repository": "https://github.com/rylorin/csv2ofx.git",
   "license": "MIT",
   "author": "Ronan-Yann Lorin <ryl@free.fr>",
+  "bin": {
+    "csv2ofx": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "clean": "rm -rf build",

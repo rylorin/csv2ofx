@@ -1,3 +1,9 @@
+#!/usr/bin/env node
+
+// should be at the very beginning to initialize node-config paths before loading
+import initConfig from "./config";
+initConfig();
+
 import { Config as IConfig } from "config";
 import { DateTime } from "luxon";
 import fs from "node:fs";

@@ -1,5 +1,10 @@
 # csv2ofx
 
+![Version](https://img.shields.io/github/package-json/v/rylorin/csv2ofx)
+[![Publish](https://github.com/rylorin/csv2ofx/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/rylorin/csv2ofx/actions/workflows/npm-publish.yml)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Downloads](https://img.shields.io/npm/dt/csv2ofx.svg)
+
 ## Overview
 
 `csv2ofx` is a tool that converts CSV files to OFX format. This is useful for importing financial data into accounting software that supports `OFX` files, like `GnuCash`.
@@ -227,7 +232,7 @@ csv2ofx default transactions.csv output.csv --format csv
 
 When generating CSV output, the tool produces a PortfolioPerformance‑compatible file with the following header:
 
-```
+```text
 Date;Type;Note;Symbole boursier;ISIN;Nom du titre;Parts;Prix;Montant brut en devise;Frais;Impôts / Taxes;Valeur;Devise de l'opération;Taux de change
 ```
 
