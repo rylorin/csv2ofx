@@ -3,7 +3,10 @@
   "version": "0.0.5",
   "private": false,
   "description": "Convert CSV files to OFX",
-  "repository": "https://github.com/rylorin/csv2ofx.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rylorin/csv2ofx.git"
+  },
   "license": "MIT",
   "author": "Ronan-Yann Lorin <ryl@free.fr>",
   "bin": {
