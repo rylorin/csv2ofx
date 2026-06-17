@@ -7,7 +7,7 @@ on:
     branches:
       - "main"
     paths-ignore:
-      - "readme.md"
+      - "README.md"
       - "LICENSE"
       - ".github/workflows/qc-test.yml"
 

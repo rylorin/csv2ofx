@@ -8,6 +8,7 @@
 ## Overview
 
 `csv2ofx` is a tool that converts CSV files to OFX format. This is useful for importing financial data into accounting software that supports `OFX` files, like `GnuCash`.
+Alternatively it can be used to convert any input CSV files to the CSV format used by PortfolioPerformance.
 
 ## Features
 
@@ -233,7 +234,7 @@ csv2ofx default transactions.csv output.csv --format csv
 When generating CSV output, the tool produces a PortfolioPerformance‑compatible file with the following header:
 
 ```text
-Date;Type;Note;Symbole boursier;ISIN;Nom du titre;Parts;Prix;Montant brut en devise;Frais;Impôts / Taxes;Valeur;Devise de l'opération;Taux de change
+Date;Type;Note;Symbole boursier;ISIN;Nom du titre;Parts;Frais;Impôts / Taxes;Valeur;Devise de l'opération;Taux de change
 ```
 
 The parser extracts optional currency conversion fields (exchange rate, fee amount, etc.) from the input file to populate the appropriate columns.
