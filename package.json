@@ -16,9 +16,9 @@
     "build": "tsc --project tsconfig.json",
     "clean": "rm -rf build",
     "dev": "ts-node-dev --project tsconfig.json src/index",
-    "lint": "eslint .",
+    "lint": "prettier --check ./src && eslint ./src",
     "prepublishOnly": "yarn build",
-    "qc": "yarn lint && yarn type-check && prettier --check .",
+    "qc": "yarn lint && yarn type-check",
     "start": "NODE_ENV=production node build/index.js",
     "test": "yarn qc",
     "type-check": "tsc --noEmit"

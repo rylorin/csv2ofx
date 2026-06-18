@@ -20,15 +20,22 @@ Alternatively it can be used to convert any input CSV files to the CSV format us
 - Configurable date formats and delimiters
 - **New**: Support for PortfolioPerformance CSV output via `--format csv` option
 
-## Installation
+## 📌 Prerequisites
 
-To install `csv2ofx`, you can use check it out from GitHub:
+- [Node.js](https://nodejs.org/) (v22 or higher recommended)
 
-```sh
-git clone rylorin/csv2ofx
-cd csv2ofx
-yarn install
-yarn build
+## 🚀 Installation & Usage
+
+### Installation
+
+No installation is required, `npx` will download and install on the fly the latest release of the package.
+
+### Usage
+
+To run `csv2ofx` from the **system command line prompt** (not from the Node.js REPL), use the following command:
+
+```bash
+npx csv2ofx model input.csv output.[ofx|csv]
 ```
 
 ## Configuration
@@ -180,7 +187,7 @@ yarn build
 }
 ```
 
-## Usage
+## Usage Examples
 
 The command now accepts an optional `--format` (or `-f`) argument to choose the output format. The default format is `ofx`, but you can generate PortfolioPerformance‑compatible CSV files by specifying `--format csv`.
 
