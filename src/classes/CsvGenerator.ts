@@ -56,7 +56,7 @@ export class CsvGenerator {
       "Date;Type;Note;Symbole boursier;ISIN;Nom du titre;Parts;Frais;Impôts / Taxes;Valeur;Devise de l'opération;Taux de change\n";
     statements.forEach((stmt) => {
       const date = this.formatDate(stmt.date.toJSDate());
-      const category = this.mapCategoryToType(stmt.category || "");
+      const category = stmt.type ?? this.mapCategoryToType(stmt.category || "");
       const ticker = stmt.ticker || "";
       const isin = stmt.isin || "";
       const securityName = stmt.securityName || "";
@@ -64,7 +64,7 @@ export class CsvGenerator {
       const _price = stmt.price !== undefined ? `${stmt.price}`.replace(".", ",") : "";
       const fees = stmt.feeAmount !== undefined ? `${stmt.feeAmount}`.replace(".", ",") : "";
       const taxes = ""; // Optional if there's no direct taxes field
-      const note = stmt.payee || stmt.memo || stmt.reference || "";
+      const note = stmt.reference || stmt.payee || stmt.memo || "";
       const currency = stmt.currency || "";
       const exchangeRate = stmt.exchangeRate !== undefined ? `${stmt.exchangeRate}`.replace(".", ",") : "";
 

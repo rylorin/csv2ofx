@@ -37,8 +37,16 @@
       }
     },
     "Trading212": {
+      "mapping": {
+        "Market buy": "Achat",
+        "Interest on cash": "Intérêts",
+        "Dividends": "Dividendes",
+        "Deposit": "Dépôt",
+        "Spending cashback": "Remboursement de Frais",
+        "Card debit": "Retrait"
+      },
       "columns": {
-        "category": 1,
+        "type": 1,
         "date": 2,
         "isin": 3,
         "ticker": 4,
@@ -52,10 +60,10 @@
         "currency": 13,
         "fee_amount": 14,
         "fee_currency": 15,
-        "payee": 16,
-        "label": 17
+        "payee": 18,
+        "category": 19
       },
-      "date_format": "yyyy-MM-dd HH:mm:ss",
+      "date_format": "yyyy-LL-dd HH:mm:ssZZ",
       "delimiter": ",",
       "encoding": "UTF-8",
       "from_line": 2

@@ -223,4 +223,19 @@ export class ConfigManager {
       if (this.config.has(`models.${model}.to_line`)) return this.config.get<number>(`models.${model}.to_line`);
     });
   }
+
+  /**
+   * Gets the source-to-reference label mapping for a specific model.
+   * Used to translate the raw `type` column values into StatementType labels.
+   * @param model The model name to get the mapping for
+   * @returns A map of source labels to reference (StatementType) labels
+   */
+  public getModelTypeMapping(model: string): Record<string, string> {
+    return this.getCached(`typeMapping:${model}`, () => {
+      if (this.config.has(`models.${model}.mapping`)) {
+        return this.config.get<Record<string, string>>(`models.${model}.mapping`);
+      }
+      return {};
+    });
+  }
 }

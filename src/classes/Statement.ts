@@ -1,11 +1,26 @@
 import { DateTime } from "luxon";
 
 /**
+ * Defines the type of a financial operation.
+ * Used mainly for CSV exports (Portfolio Performance); OFX generation stays generic (Debit/Credit).
+ */
+export enum StatementType {
+  Credit = "Dépôt",
+  Debit = "Retrait",
+  Buy = "Achat",
+  Dividend = "Dividendes",
+  Interests = "Intérêts",
+  FeesRefund = "Remboursement de Frais",
+}
+
+/**
  * Represents a single financial statement
  */
 export interface Statement {
   /** The date of the transaction */
   date: DateTime;
+  /** Optional operation type (defaults to Credit/Debit based on amount sign) */
+  type?: StatementType;
   /** The payee or recipient of the transaction */
   payee: string;
   /** The category of the transaction */

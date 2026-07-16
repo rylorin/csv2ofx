@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { formatLabels, formatString } from "../utils/stringUtils";
 import { ConfigManager } from "./ConfigManager";
-import { Statement } from "./Statement";
+import { Statement, StatementType } from "./Statement";
 
 export class OfxGenerator {
   private readonly configManager: ConfigManager;
@@ -19,7 +19,7 @@ export class OfxGenerator {
   }
 
   private formatDate(datetime: DateTime): string {
-    return datetime.toFormat("yyyyMMdd");
+    return datetime.setZone("local").toFormat("yyyyMMdd");
   }
 
   /**
@@ -67,25 +67,28 @@ export class OfxGenerator {
    * @returns The OFX representation of the statement
    */
   public generateStatement(stmt: Statement): string {
+    let name: string = stmt.payee || stmt.memo || stmt.type || "";
+    if (stmt.type == StatementType.Buy) name = `Buy ${stmt.shares} ${stmt.ticker} @ ${stmt.price} ${stmt.currency}`;
     const memo1: string[] = []; // labels + statement memo
     if (stmt.label?.length) {
       memo1.push(formatLabels(stmt.label));
     }
     if (stmt.memo && stmt.memo !== stmt.payee) {
-      memo1.push(formatString(stmt.memo));
+      memo1.push(stmt.memo);
     }
     const memo2: string[] = []; // category / labels + statement memo
     if (stmt.category.length) memo2.push(stmt.category);
     if (memo1.length) memo2.push(memo1.join(" "));
+    const memo = memo2.join(" / ");
     let ofx = `              <STMTTRN>
                 <TRNTYPE>${stmt.amount >= 0 ? "CREDIT" : "DEBIT"}</TRNTYPE>
                 <DTPOSTED>${this.formatDate(stmt.date)}</DTPOSTED>
                 <TRNAMT>${stmt.amount}</TRNAMT>
                 <FITID>${stmt.reference}</FITID>
-                <NAME>${formatString(stmt.payee)}</NAME>
+                <NAME>${formatString(name)}</NAME>
 `;
-    if (memo2.length)
-      ofx += `                <MEMO>${memo2.join(" / ")}</MEMO>
+    if (memo != name)
+      ofx += `                <MEMO>${formatString(memo)}</MEMO>
 `;
     ofx += `              </STMTTRN>
 `;

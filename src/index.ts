@@ -27,16 +27,24 @@ export class App {
   }
 
   public async run(
-    model: string,
     csvFilePath: string,
     ofxFilePath: string,
-    format = "ofx",
-    account?: string,
-    fromDate?: string,
-    toDate?: string,
+    model: string | undefined,
+    format: string,
+    account: string | undefined,
+    fromDate: string | undefined,
+    toDate: string | undefined,
   ): Promise<void> {
     // console.log(model, csvFilePath, ofxFilePath, account, fromDate);
     try {
+      if (!model) {
+        if (account && config.has(`accounts.${account}.model`)) {
+          model = config.get(`accounts.${account}.model`);
+        }
+        if (!model) {
+          model = "default";
+        }
+      }
       // Get configuration
       const columns = this.configManager.getColumns(model);
 
@@ -83,15 +91,15 @@ export class App {
 }
 
 function parseArgs(args: string[]): {
-  model: string;
+  model: string | undefined;
   input: string;
   output: string;
   format: string;
-  account?: string;
-  fromDate?: string;
-  toDate?: string;
+  account: string | undefined;
+  fromDate: string | undefined;
+  toDate: string | undefined;
 } {
-  let model = "";
+  let model: string | undefined;
   let input = "";
   let output = "";
   let format = "ofx";
@@ -113,8 +121,9 @@ function parseArgs(args: string[]): {
     } else if (arg === "--toDate" && i + 1 < args.length) {
       toDate = args[i + 1];
       i++; // Skip the next argument
-    } else if (!model) {
-      model = arg;
+    } else if (arg === "--model" && i + 1 < args.length) {
+      model = args[i + 1];
+      i++; // Skip the next argument
     } else if (!input) {
       input = arg;
     } else if (!output) {
@@ -128,15 +137,15 @@ function parseArgs(args: string[]): {
 const args = parseArgs(process.argv);
 // console.log(args);
 
-if (!args.model || !args.input || !args.output) {
+if (!args.input || !args.output) {
   console.error(
-    `Usage: ${process.argv[0]} ${process.argv[1]} model input-file|- output-file|- [--format ofx|csv] [--account account-id] [--fromDate YYYY-MM-DD] [--toDate YYYY-MM-DD]`,
+    `Usage: ${process.argv[0]} ${process.argv[1]} input-file|- output-file|- --model model-name [--format ofx|csv] [--account account-id] [--fromDate YYYY-MM-DD] [--toDate YYYY-MM-DD]`,
   );
   exit(1);
 } else {
   const app = new App(config);
   app
-    .run(args.model, args.input, args.output, args.format, args.account, args.fromDate, args.toDate)
+    .run(args.input, args.output, args.model, args.format, args.account, args.fromDate, args.toDate)
     .catch((err: Error) => {
       console.error(err);
       exit(1);

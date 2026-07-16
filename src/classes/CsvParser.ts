@@ -4,7 +4,7 @@ import fs from "node:fs";
 import { hashObject } from "../utils/hashUtils";
 import { Columns } from "./Columns";
 import { ConfigManager } from "./ConfigManager";
-import { Statement } from "./Statement";
+import { Statement, StatementType } from "./Statement";
 
 type CsvLine = string[];
 
@@ -18,6 +18,7 @@ export class CsvParser {
   private readonly accountFilter?: string;
   private readonly decimals_separator: string;
   private readonly thousands_separator: string;
+  private readonly typeMapping: Record<string, string>;
 
   /**
    * Creates a new CsvParser instance
@@ -45,6 +46,7 @@ export class CsvParser {
     this.toDate = toDate;
     this.decimals_separator = configManager.getModelDecimalsSeparator(model);
     this.thousands_separator = this.decimals_separator == "." ? "," : ".";
+    this.typeMapping = configManager.getModelTypeMapping(model);
   }
 
   private getReference(line: CsvLine): string {
@@ -115,6 +117,23 @@ export class CsvParser {
     return line[col] ?? "";
   }
 
+  private getType(line: CsvLine, amount: number): StatementType {
+    if (this.columns.type) {
+      const col = this.columns.type - 1;
+      const raw = line[col];
+      if (raw && raw.trim() !== "") {
+        const label = this.typeMapping[raw.trim()] ?? raw.trim();
+        const matched = (Object.values(StatementType) as string[]).find(
+          (value) => value.toLowerCase() === label.toLowerCase(),
+        );
+        if (matched) {
+          return matched as StatementType;
+        }
+      }
+    }
+    return amount >= 0 ? StatementType.Credit : StatementType.Debit;
+  }
+
   private getPayee(line: CsvLine): string {
     const col = this.columns.payee - 1;
     return line[col] ?? "";
@@ -123,7 +142,7 @@ export class CsvParser {
   private getDate(line: CsvLine): DateTime {
     const col = this.columns.date - 1;
     const dateStr = line[col] ?? "";
-    const dt = DateTime.fromFormat(dateStr, this.configManager.getModelDateFormat(this.model), { zone: "GMT" });
+    const dt = DateTime.fromFormat(dateStr, this.configManager.getModelDateFormat(this.model), { zone: "UTC" });
     if (!dt.isValid) {
       throw new Error(`Invalid date format: ${dateStr}`);
     }
@@ -155,11 +174,13 @@ export class CsvParser {
         .on("data", (line: CsvLine) => {
           // console.log("data", line);
           try {
+            const amount = this.getAmount(line);
             const statement: Statement = {
               date: this.getDate(line),
               payee: this.getPayee(line),
               category: this.getCategory(line),
-              amount: this.getAmount(line),
+              amount,
+              type: this.getType(line, amount),
               memo: this.getMemo(line),
               label: this.getLabel(line),
               reference: this.getReference(line),

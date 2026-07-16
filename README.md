@@ -50,6 +50,7 @@ npx csv2ofx model input.csv output.[ofx|csv]
   "from_date": "2001-01-01"
   "accounts": {
     "my-account": {
+      "model": "my-model",
       "acct_id": "123456789",
       "bank_id": "BANK12345",
       "currency": "EUR"
@@ -86,6 +87,7 @@ npx csv2ofx model input.csv output.[ofx|csv]
 
 #### Account Configuration
 
+- `accounts.{accountId}.model`: The model identifier for the account
 - `accounts.{accountId}.acct_id`: The account identifier for the account
 - `accounts.{accountId}.bank_id`: The bank identifier for the account
 - `accounts.{accountId}.currency`: The currency code (e.g., EUR, USD)
@@ -121,6 +123,7 @@ npx csv2ofx model input.csv output.[ofx|csv]
 - `columns.security_name`: Column index for the security name/text field (1-based)
 - `columns.shares`: Column index for the number of shares/units traded field (1-based)
 - `columns.price`: Column index for the price per unit/shares field (1-based)
+- `columns.type`: Optional column index for the operation type field (1-based). The value is matched (case-insensitively) against the `StatementType` labels (e.g. `Achat`, `Dividende`, `Virement à`, `Paiement carte de débit`...). When not provided or unmatched, the type defaults to `Credit` (amount >= 0) or `Debit` (amount < 0). The type is used for CSV (Portfolio Performance) output; the OFX output remains generic (Debit/Credit by amount sign).
 
 ### Example Configurations
 
@@ -131,6 +134,7 @@ npx csv2ofx model input.csv output.[ofx|csv]
   "account": "checking"
   "accounts": {
     "checking": {
+      "model": "default",
       "bank_id": "123456789",
       "currency": "EUR"
     }
@@ -161,6 +165,7 @@ npx csv2ofx model input.csv output.[ofx|csv]
   "from_date": "2024-01-01",
   "accounts": {
     "savings": {
+      "model": "bank-export",
       "bank_id": "987654321",
       "currency": "USD"
     }
@@ -231,6 +236,7 @@ csv2ofx default transactions.csv output.csv --format csv
 
 ### Options
 
+- `--model model_id` - Optional input data model
 - `--format ofx|csv` (default: `ofx`) – Choose output format. `csv` produces a PortfolioPerformance‑compatible CSV file.
 - `--account account-id` – Optional account filter.
 - `--fromDate YYYY-MM-DD` – Optional start date filter.

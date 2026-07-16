@@ -37,4 +37,6 @@ export interface Columns {
   shares?: number | null;
   /** Optional column index for the price field (1-based) */
   price?: number | null;
+  /** Optional column index for the operation type field (1-based) */
+  type?: number | null;
 }
