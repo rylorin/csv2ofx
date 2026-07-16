@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // should be at the very beginning to initialize node-config paths before loading
-import initConfig from "./config";
+import initConfig from "./config.js";
 initConfig();
 
 import { Config as IConfig } from "config";
@@ -73,7 +73,7 @@ export class App {
 
       // Generate Output
       if (format === "csv") {
-        const CsvGenerator = (await import("./classes/CsvGenerator")).CsvGenerator;
+        const CsvGenerator = (await import("./classes/CsvGenerator.js")).CsvGenerator;
         const csvGenerator = new CsvGenerator();
         fs.writeFileSync(ofxFilePath, csvGenerator.generate(statements));
       } else {
@@ -113,7 +113,7 @@ function parseArgs(args: string[]): {
       account = args[i + 1];
       i++; // Skip the next argument
     } else if ((arg === "--format" || arg === "-f") && i + 1 < args.length) {
-      format = args[i + 1].toLowerCase();
+      format = args[i + 1]?.toLowerCase() ?? "ofx";
       i++; // Skip the next argument
     } else if (arg === "--fromDate" && i + 1 < args.length) {
       fromDate = args[i + 1];
@@ -125,9 +125,9 @@ function parseArgs(args: string[]): {
       model = args[i + 1];
       i++; // Skip the next argument
     } else if (!input) {
-      input = arg;
+      input = arg ?? "";
     } else if (!output) {
-      output = arg;
+      output = arg ?? "";
     }
   }
 

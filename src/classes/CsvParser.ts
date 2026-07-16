@@ -14,7 +14,6 @@ export class CsvParser {
   private readonly columns: Columns;
   private readonly fromDate?: DateTime;
   private readonly toDate?: DateTime;
-  private readonly account?: string;
   private readonly accountFilter?: string;
   private readonly decimals_separator: string;
   private readonly thousands_separator: string;
@@ -33,15 +32,14 @@ export class CsvParser {
     configManager: ConfigManager,
     model: string,
     columns: Columns,
-    account?: string,
+    _account?: string,
     fromDate?: DateTime,
     toDate?: DateTime,
   ) {
     this.configManager = configManager;
     this.model = model;
     this.columns = columns;
-    this.account = account;
-    this.accountFilter = configManager.getAccountFilter(account);
+    this.accountFilter = configManager.getAccountFilter(_account);
     this.fromDate = fromDate;
     this.toDate = toDate;
     this.decimals_separator = configManager.getModelDecimalsSeparator(model);

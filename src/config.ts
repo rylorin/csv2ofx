@@ -11,7 +11,7 @@ export function initConfig(): void {
   // Define config paths
   const package_path = path.join(path.dirname(require.resolve("../package.json")), "config");
   const runtime_path = path.normalize(path.join(process.cwd(), "config"));
-  const file_path = path.join(path.dirname(process.argv[2]), "config");
+  const file_path = path.join(path.dirname(process.argv[2] ?? ""), "config");
   addConfigPath(allPaths, package_path);
   addConfigPath(allPaths, runtime_path);
   addConfigPath(allPaths, file_path);

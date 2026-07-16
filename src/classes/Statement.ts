@@ -4,14 +4,16 @@ import { DateTime } from "luxon";
  * Defines the type of a financial operation.
  * Used mainly for CSV exports (Portfolio Performance); OFX generation stays generic (Debit/Credit).
  */
-export enum StatementType {
-  Credit = "Dépôt",
-  Debit = "Retrait",
-  Buy = "Achat",
-  Dividend = "Dividendes",
-  Interests = "Intérêts",
-  FeesRefund = "Remboursement de Frais",
-}
+export const StatementType = {
+  Credit: "Dépôt",
+  Debit: "Retrait",
+  Buy: "Achat",
+  Dividend: "Dividendes",
+  Interests: "Intérêts",
+  FeesRefund: "Remboursement de Frais",
+} as const;
+
+export type StatementType = (typeof StatementType)[keyof typeof StatementType];
 
 /**
  * Represents a single financial statement

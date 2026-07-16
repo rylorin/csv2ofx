@@ -221,6 +221,7 @@ export class ConfigManager {
   public getModelToLine(model: string): number | undefined {
     return this.getCached(`toLine:${model}`, () => {
       if (this.config.has(`models.${model}.to_line`)) return this.config.get<number>(`models.${model}.to_line`);
+      return undefined;
     });
   }
 
