@@ -5,7 +5,7 @@ on:
     paths-ignore:
       - "README.md"
       - "LICENSE"
-      - ".github/workflows/build.yml"
+      - ".github/workflows/npm-publish.yml"
 
 jobs:
   qc:
