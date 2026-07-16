@@ -60,9 +60,17 @@ npx csv2ofx model input.csv output.[ofx|csv]
     "my-model": {
       "encoding": "utf-8",
       "delimiter": ";",
-      "dateFormat": "dd/MM/yyyy",
+      "date_format": "yyyy-LL-dd HH:mm:ssZZ",
       "fromLine": 2,
       "toLine": 1000,
+      "mapping": {
+        "Market buy": "Achat",
+        "Interest on cash": "Intérêts",
+        "Dividends": "Dividendes",
+        "Deposit": "Dépôt",
+        "Spending cashback": "Remboursement de Frais",
+        "Card debit": "Retrait"
+      },
       "columns": {
         "date": 1,
         "payee": 2,
@@ -100,6 +108,7 @@ npx csv2ofx model input.csv output.[ofx|csv]
 - `models.{modelName}.from_line`: First line to process (1-based)
 - `models.{modelName}.to_line`: Last line to process (1-based)
 - `models.{modelName}.columns`: Column mapping configuration
+- `models.{modelName}.mapping`: Operation type mapping configuration
 
 #### Column Configuration
 
