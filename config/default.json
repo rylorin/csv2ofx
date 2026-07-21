@@ -40,7 +40,7 @@
       "mapping": {
         "Market buy": "Achat",
         "Interest on cash": "Intérêts",
-        "Dividends": "Dividendes",
+        "Dividend (Dividend)": "Dividendes",
         "Deposit": "Dépôt",
         "Spending cashback": "Remboursement de Frais",
         "Card debit": "Retrait"
@@ -55,11 +55,11 @@
         "reference": 7,
         "shares": 8,
         "price": 9,
+        "under_currency": 10,
         "exchange_rate": 11,
         "amount": 12,
         "currency": 13,
         "fee_amount": 14,
-        "fee_currency": 15,
         "payee": 18,
         "category": 19
       },

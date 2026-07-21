@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // should be at the very beginning to initialize node-config paths before loading
-import initConfig from "./config.js";
+import initConfig from "./config";
 initConfig();
 
 import { Config as IConfig } from "config";
@@ -9,6 +9,7 @@ import { DateTime } from "luxon";
 import fs from "node:fs";
 import { exit } from "node:process";
 import { ConfigManager } from "./classes/ConfigManager";
+import { CsvGenerator } from "./classes/CsvGenerator";
 import { CsvParser } from "./classes/CsvParser";
 import { OfxGenerator } from "./classes/OfxGenerator";
 
@@ -73,7 +74,6 @@ export class App {
 
       // Generate Output
       if (format === "csv") {
-        const CsvGenerator = (await import("./classes/CsvGenerator.js")).CsvGenerator;
         const csvGenerator = new CsvGenerator();
         fs.writeFileSync(ofxFilePath, csvGenerator.generate(statements));
       } else {
@@ -115,10 +115,10 @@ function parseArgs(args: string[]): {
     } else if ((arg === "--format" || arg === "-f") && i + 1 < args.length) {
       format = args[i + 1]?.toLowerCase() ?? "ofx";
       i++; // Skip the next argument
-    } else if (arg === "--fromDate" && i + 1 < args.length) {
+    } else if (arg === "--from-date" && i + 1 < args.length) {
       fromDate = args[i + 1];
       i++; // Skip the next argument
-    } else if (arg === "--toDate" && i + 1 < args.length) {
+    } else if (arg === "--to-date" && i + 1 < args.length) {
       toDate = args[i + 1];
       i++; // Skip the next argument
     } else if (arg === "--model" && i + 1 < args.length) {
@@ -139,7 +139,7 @@ const args = parseArgs(process.argv);
 
 if (!args.input || !args.output) {
   console.error(
-    `Usage: ${process.argv[0]} ${process.argv[1]} input-file|- output-file|- --model model-name [--format ofx|csv] [--account account-id] [--fromDate YYYY-MM-DD] [--toDate YYYY-MM-DD]`,
+    `Usage: ${process.argv[0]} ${process.argv[1]} input-file|- output-file|- --model model-name [--format ofx|csv] [--account account-id] [--from-date YYYY-MM-DD] [--to-date YYYY-MM-DD]`,
   );
   exit(1);
 } else {

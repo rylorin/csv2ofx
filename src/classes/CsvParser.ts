@@ -184,7 +184,7 @@ export class CsvParser {
               reference: this.getReference(line),
               account: this.getAccount(line),
               feeAmount: this.getNumberField(line, this.columns.fee_amount),
-              feeCurrency: this.getStringField(line, this.columns.fee_currency),
+              underCurrency: this.getStringField(line, this.columns.under_currency),
               exchangeRate: this.getNumberField(line, this.columns.exchange_rate),
               currency: this.getStringField(line, this.columns.currency),
               ticker: this.getStringField(line, this.columns.ticker),
@@ -202,7 +202,7 @@ export class CsvParser {
             if (this.fromDate && statement.date < this.fromDate) {
               emit = false;
             }
-            if (this.toDate && statement.date > this.toDate) {
+            if (this.toDate && statement.date > this.toDate.endOf("day")) {
               emit = false;
             }
             if (emit) {

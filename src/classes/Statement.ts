@@ -40,7 +40,7 @@ export interface Statement {
   /** Optional currency conversion fee amount */
   feeAmount?: number;
   /** Optional currency conversion fee currency */
-  feeCurrency?: string;
+  underCurrency?: string;
   /** Optional exchange rate */
   exchangeRate?: number;
   /** Optional currency */

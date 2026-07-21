@@ -124,7 +124,7 @@ npx csv2ofx model input.csv output.[ofx|csv]
 ### ... and for Trading 212 CSV export format to Porfolio Performance CSV import format
 
 - `columns.fee_amount`: Column index for the conversion fee amount field (1-based)
-- `columns.fee_currency`: Column index for the conversion fee currency field (1-based)
+- `columns.under_currency`: Column index for the underlying currency field (1-based)
 - `columns.exchange_rate`: Column index for the exchange rate field (1-based)
 - `columns.currency`: Column index for the operation currency field (1-based)
 - `columns.ticker`: Column index for the stock ticker symbol field (1-based)
@@ -228,7 +228,7 @@ csv2ofx bank-export bank_data.csv output.ofx
 3. Convert a CSV file and filter by date:
 
 ```sh
-csv2ofx default transactions.csv output.ofx --fromDate 2026-01-01
+csv2ofx default transactions.csv output.ofx --from-date 2026-01-01
 ```
 
 4. Convert a CSV file and filter by account:
@@ -248,8 +248,8 @@ csv2ofx default transactions.csv output.csv --format csv
 - `--model model_id` - Optional input data model
 - `--format ofx|csv` (default: `ofx`) – Choose output format. `csv` produces a PortfolioPerformance‑compatible CSV file.
 - `--account account-id` – Optional account filter.
-- `--fromDate YYYY-MM-DD` – Optional start date filter.
-- `--toDate YYYY-MM-DD` – Optional end date filter.
+- `--from-date YYYY-MM-DD` – Optional start date filter.
+- `--to-date YYYY-MM-DD` – Optional end date filter.
 
 ## CSV Format
 

@@ -53,7 +53,7 @@ export class CsvGenerator {
 
   public generate(statements: Statement[]): string {
     let csv =
-      "Date;Type;Note;Symbole boursier;ISIN;Nom du titre;Parts;Frais;Impôts / Taxes;Valeur;Devise de l'opération;Taux de change\n";
+      "Date;Type;Valeur;Devise de l'opération;Montant brut en devise;Taux de change;Note;Symbole boursier;ISIN;Nom du titre;Parts;Frais;Impôts / Taxes\n";
     statements.forEach((stmt) => {
       const date = this.formatDate(stmt.date.toJSDate());
       const category = stmt.type ?? this.mapCategoryToType(stmt.category || "");
@@ -67,11 +67,12 @@ export class CsvGenerator {
       const note = stmt.reference || stmt.payee || stmt.memo || "";
       const currency = stmt.currency || "";
       const exchangeRate = stmt.exchangeRate !== undefined ? `${stmt.exchangeRate}`.replace(".", ",") : "";
+      const underCurrency = stmt.underCurrency !== undefined ? `${stmt.underCurrency}`.replace(".", ",") : "";
 
       // Convert amount to string
       const amount = `${stmt.amount}`.replace(".", ",");
 
-      csv += `${date};${category};${note};${ticker};${isin};${securityName};${shares};${fees};${taxes};${amount};${currency};${exchangeRate}\n`;
+      csv += `${date};${category};${amount};${currency};${underCurrency};${exchangeRate};${note};${ticker};${isin};${securityName};${shares};${fees};${taxes}\n`;
     });
     return csv;
   }

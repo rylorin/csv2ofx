@@ -22,7 +22,7 @@ export interface Columns {
   /** Optional column index for currency conversion fee amount field (1-based) */
   fee_amount?: number | null;
   /** Optional column index for currency conversion fee currency field (1-based) */
-  fee_currency?: number | null;
+  under_currency?: number | null;
   /** Optional column index for exchange rate field (1-based) */
   exchange_rate?: number | null;
   /** Optional column index for currency field (1-based) */
