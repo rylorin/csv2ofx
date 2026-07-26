@@ -1,8 +1,9 @@
 {
   "accounts": {
-    "example": {
+    "default": {
       "bank_id": "BANKID",
-      "currency": "EUR"
+      "currency": "EUR",
+      "model": "Linxo"
     }
   },
   "models": {
@@ -69,6 +70,6 @@
       "from_line": 2
     }
   },
-  "account": "example",
+  "account": "default",
   "from_date": "2001-01-01"
 }

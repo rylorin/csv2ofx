@@ -38,6 +38,14 @@ export class App {
   ): Promise<void> {
     // console.log(model, csvFilePath, ofxFilePath, account, fromDate);
     try {
+      if (!account) {
+        if (config.has("account")) {
+          account = config.get("account");
+        }
+        if (!account) {
+          account = "default";
+        }
+      }
       if (!model) {
         if (account && config.has(`accounts.${account}.model`)) {
           model = config.get(`accounts.${account}.model`);
@@ -139,7 +147,7 @@ const args = parseArgs(process.argv);
 
 if (!args.input || !args.output) {
   console.error(
-    `Usage: ${process.argv[0]} ${process.argv[1]} input-file|- output-file|- --model model-name [--format ofx|csv] [--account account-id] [--from-date YYYY-MM-DD] [--to-date YYYY-MM-DD]`,
+    `Usage: ${process.argv[0]} ${process.argv[1]} input-file|- output-file|- [--model model-name] [--format ofx|csv] [--account account-id] [--from-date YYYY-MM-DD] [--to-date YYYY-MM-DD]`,
   );
   exit(1);
 } else {

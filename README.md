@@ -35,7 +35,7 @@ No installation is required, `npx` will download and install on the fly the late
 To run `csv2ofx` from the **system command line prompt** (not from the Node.js REPL), use the following command:
 
 ```bash
-npx csv2ofx model input.csv output.[ofx|csv]
+npx csv2ofx --model input.csv output.[ofx|csv]
 ```
 
 ## Configuration
