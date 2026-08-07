@@ -1,4 +1,5 @@
 {
+  "version": "1.0.0",
   "accounts": {
     "default": {
       "bank_id": "BANKID",
@@ -42,6 +43,7 @@
         "Market buy": "Achat",
         "Interest on cash": "Intérêts",
         "Dividend (Dividend)": "Dividendes",
+        "Dividend (Interest)": "Dividendes",
         "Deposit": "Dépôt",
         "Spending cashback": "Remboursement de Frais",
         "Card debit": "Retrait"

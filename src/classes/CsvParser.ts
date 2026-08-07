@@ -48,12 +48,13 @@ export class CsvParser {
   }
 
   private getReference(line: CsvLine): string {
+    let reference = "";
     if (this.columns.reference) {
       const col = this.columns.reference - 1;
-      return line[col] ?? "";
-    } else {
-      return hashObject(line);
+      reference = line[col] ?? "";
     }
+    if (!reference) reference = hashObject(line);
+    return reference;
   }
 
   // If the account column is defined, return the value from the line

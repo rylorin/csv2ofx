@@ -36,24 +36,21 @@ export class App {
     fromDate: string | undefined,
     toDate: string | undefined,
   ): Promise<void> {
-    // console.log(model, csvFilePath, ofxFilePath, account, fromDate);
+    // console.log(model, csvFilePath, ofxFilePath, account, fromDate,toDate);
     try {
       if (!account) {
         if (config.has("account")) {
           account = config.get("account");
         }
-        if (!account) {
-          account = "default";
-        }
       }
+      if (!account) throw "Account missiog";
       if (!model) {
         if (account && config.has(`accounts.${account}.model`)) {
           model = config.get(`accounts.${account}.model`);
         }
-        if (!model) {
-          model = "default";
-        }
       }
+      if (!model) throw "Model missing";
+
       // Get configuration
       const columns = this.configManager.getColumns(model);
 
@@ -100,16 +97,16 @@ export class App {
 
 function parseArgs(args: string[]): {
   model: string | undefined;
-  input: string;
-  output: string;
+  input: string | undefined;
+  output: string | undefined;
   format: string;
   account: string | undefined;
   fromDate: string | undefined;
   toDate: string | undefined;
 } {
   let model: string | undefined;
-  let input = "";
-  let output = "";
+  let input: string | undefined;
+  let output: string | undefined;
   let format = "ofx";
   let account: string | undefined;
   let fromDate: string | undefined;
@@ -133,9 +130,9 @@ function parseArgs(args: string[]): {
       model = args[i + 1];
       i++; // Skip the next argument
     } else if (!input) {
-      input = arg ?? "";
+      input = arg;
     } else if (!output) {
-      output = arg ?? "";
+      output = arg;
     }
   }
 

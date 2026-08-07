@@ -68,7 +68,13 @@ export class OfxGenerator {
    */
   public generateStatement(stmt: Statement): string {
     let name: string = stmt.payee || stmt.memo || stmt.type || "";
-    if (stmt.type == StatementType.Buy) name = `Buy ${stmt.shares} ${stmt.ticker} @ ${stmt.price} ${stmt.currency}`;
+    let amount: number = stmt.amount;
+    if (stmt.type == StatementType.Buy) {
+      name = `Buy ${stmt.shares} ${stmt.ticker} @ ${stmt.price} ${stmt.currency}`;
+      amount = -Math.abs(stmt.amount);
+    } else if (stmt.type == StatementType.Dividend) {
+      name = `Dividend ${stmt.shares} ${stmt.ticker} @ ${stmt.price}`;
+    }
     const memo1: string[] = []; // labels + statement memo
     if (stmt.label?.length) {
       memo1.push(formatLabels(stmt.label));
@@ -81,13 +87,13 @@ export class OfxGenerator {
     if (memo1.length) memo2.push(memo1.join(" "));
     const memo = memo2.join(" / ");
     let ofx = `              <STMTTRN>
-                <TRNTYPE>${stmt.amount >= 0 ? "CREDIT" : "DEBIT"}</TRNTYPE>
+                <TRNTYPE>${amount >= 0 ? "CREDIT" : "DEBIT"}</TRNTYPE>
                 <DTPOSTED>${this.formatDate(stmt.date)}</DTPOSTED>
-                <TRNAMT>${stmt.amount}</TRNAMT>
+                <TRNAMT>${amount}</TRNAMT>
                 <FITID>${stmt.reference}</FITID>
                 <NAME>${formatString(name)}</NAME>
 `;
-    if (memo != name)
+    if (memo.length && memo != name)
       ofx += `                <MEMO>${formatString(memo)}</MEMO>
 `;
     ofx += `              </STMTTRN>
@@ -134,10 +140,6 @@ export class OfxGenerator {
    */
   public generateTrailer(): string {
     const ofx = `
-        <LEDGERBAL>
-          <BALAMT>${this.finalBalance}</BALAMT>
-          <DTASOF>${this.formatDate(DateTime.now())}</DTASOF>
-        </LEDGERBAL>
       </STMTRS>
     </STMTTRNRS>
   </BANKMSGSRSV1>
@@ -145,4 +147,17 @@ export class OfxGenerator {
     `;
     return ofx;
   }
+  //   public generateTrailer(): string {
+  //     const ofx = `
+  //         <LEDGERBAL>
+  //           <BALAMT>${this.finalBalance}</BALAMT>
+  //           <DTASOF>${this.formatDate(DateTime.now())}</DTASOF>
+  //         </LEDGERBAL>
+  //       </STMTRS>
+  //     </STMTTRNRS>
+  //   </BANKMSGSRSV1>
+  // </OFX>
+  //     `;
+  //     return ofx;
+  //   }
 }

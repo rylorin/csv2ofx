@@ -220,7 +220,10 @@ export class ConfigManager {
    */
   public getModelToLine(model: string): number | undefined {
     return this.getCached(`toLine:${model}`, () => {
-      if (this.config.has(`models.${model}.to_line`)) return this.config.get<number>(`models.${model}.to_line`);
+      if (this.config.has(`models.${model}.to_line`)) {
+        const value = this.config.get<number>(`models.${model}.to_line`);
+        return value ?? undefined;
+      }
       return undefined;
     });
   }
