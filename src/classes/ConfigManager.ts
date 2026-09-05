@@ -1,6 +1,6 @@
-import { Config as IConfig } from "config";
+import type { Config as IConfig } from "config";
 import { DateTime } from "luxon";
-import { Columns } from "./Columns";
+import type { Columns } from "./Columns";
 
 interface Cache<T> {
   value: T;

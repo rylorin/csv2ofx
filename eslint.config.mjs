@@ -1,3 +1,4 @@
+// TS 7: Ensure typescript-eslint version supports TS 7 before upgrading
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 
@@ -7,11 +8,16 @@ export default tseslint.config(
   tseslint.configs.stylistic,
   {
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2022,
       sourceType: "module",
       parserOptions: { project: true },
     },
     rules: {
+      // Enforces consistent type imports — required for verbatimModuleSyntax in TS 7
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        { prefer: "type-imports", fixStyle: "separate-type-imports" },
+      ],
       "no-console": "off",
 
       // "@typescript-eslint/ban-types": "error",

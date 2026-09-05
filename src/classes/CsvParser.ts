@@ -1,10 +1,12 @@
-import { Options, parse } from "csv-parse";
+import type { Options } from "csv-parse";
+import { parse } from "csv-parse";
 import { DateTime } from "luxon";
 import fs from "node:fs";
 import { hashObject } from "../utils/hashUtils";
-import { Columns } from "./Columns";
-import { ConfigManager } from "./ConfigManager";
-import { Statement, StatementType } from "./Statement";
+import type { Columns } from "./Columns";
+import type { ConfigManager } from "./ConfigManager";
+import type { Statement } from "./Statement";
+import { StatementType } from "./Statement";
 
 type CsvLine = string[];
 

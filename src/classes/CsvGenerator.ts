@@ -1,4 +1,4 @@
-import { Statement } from "./Statement";
+import type { Statement } from "./Statement";
 
 /**
  * CSV file format generator for Portfolio Performance

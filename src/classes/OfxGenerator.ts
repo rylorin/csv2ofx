@@ -1,7 +1,8 @@
 import { DateTime } from "luxon";
 import { formatLabels, formatString } from "../utils/stringUtils";
-import { ConfigManager } from "./ConfigManager";
-import { Statement, StatementType } from "./Statement";
+import type { ConfigManager } from "./ConfigManager";
+import type { Statement } from "./Statement";
+import { StatementType } from "./Statement";
 
 export class OfxGenerator {
   private readonly configManager: ConfigManager;

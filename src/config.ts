@@ -1,7 +1,10 @@
-import * as path from "path";
+import * as path from "node:path";
+
+// NOTE: This module currently relies on CommonJS globals (`require`, `__dirname`).
+// When migrating to TS 7 + ESM ("type": "module" + verbatimModuleSyntax), replace
+// `require`/`require.resolve` with `createRequire` from "node:module" or `import.meta`.
 
 function addConfigPath(allPaths: string[], configPath: string): void {
-  //   console.debug(configPath);
   if (allPaths.indexOf(configPath) < 0) allPaths.push(configPath);
 }
 
@@ -19,6 +22,7 @@ export function initConfig(): void {
   // Set NODE_CONFIG_DIR
   process.env["NODE_CONFIG_DIR"] = allPaths.join(path.delimiter);
 
+  // Force node-config to re-read with updated NODE_CONFIG_DIR
   const _config = require("config"); // eslint-disable-line @typescript-eslint/no-require-imports
   // console.log(
   //   "Config dir:",

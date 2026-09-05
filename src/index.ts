@@ -4,7 +4,7 @@
 import initConfig from "./config";
 initConfig();
 
-import { Config as IConfig } from "config";
+import type { Config as IConfig } from "config";
 import { DateTime } from "luxon";
 import fs from "node:fs";
 import { exit } from "node:process";
@@ -13,11 +13,7 @@ import { CsvGenerator } from "./classes/CsvGenerator";
 import { CsvParser } from "./classes/CsvParser";
 import { OfxGenerator } from "./classes/OfxGenerator";
 
-// // Load env vars
-// import dotenv from "dotenv";
-// dotenv.config();
-
-// Load config
+// Load config (must be after initConfig sets NODE_CONFIG_DIR)
 import { default as config } from "config";
 
 export class App {

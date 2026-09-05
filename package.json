@@ -14,17 +14,23 @@
   },
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "clean": "rm -rf build",
+    "build:ts7": "tsup",
+    "clean": "rm -rf dist",
     "dev": "ts-node-dev --project tsconfig.json src/index",
+    "dev:ts7": "tsx src/index.ts",
     "lint": "prettier --check ./src && eslint ./src",
     "prepublishOnly": "yarn build",
     "qc": "yarn lint && yarn type-check",
-    "start": "NODE_ENV=production node build/index.js",
+    "start": "NODE_ENV=production node dist/index.js",
     "test": "yarn qc",
     "type-check": "tsc --noEmit"
   },
+  "lint-staged": {
+    "*.ts": "yarn lint",
+    "*.{ts,json,md}": "prettier --check"
+  },
   "dependencies": {
-    "config": "^5.0.0",
+    "config": "^5.0.1",
     "csv-parse": "^7.0.2",
     "luxon": "^3.7.2"
   },
@@ -32,16 +38,18 @@
     "@eslint/js": "^10.0.1",
     "@types/luxon": "^3.7.3",
     "@types/node": "^22.20.1",
-    "concurrently": "^10.0.4",
-    "eslint": "^10.8.0",
+    "concurrently": "^10.0.5",
+    "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
     "husky": "^9.1.5",
-    "lint-staged": "^17.3.0",
+    "lint-staged": "^17.4.1",
     "prettier": "^3.9.6",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^6.0.2",
-    "typescript-eslint": "^8.66.0"
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.69.0"
   },
   "engines": {
     "node": ">=22.22.3"

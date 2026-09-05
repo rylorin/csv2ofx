@@ -32,6 +32,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      # TS 7: switch to `yarn build:ts7` (tsup) once tsc stops emitting JS
       - name: Build project
         run: yarn build
 
