@@ -14,10 +14,8 @@
   },
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "build:ts7": "tsup",
     "clean": "rm -rf dist",
     "dev": "tsx src/index.ts",
-    "dev:ts6": "ts-node-dev --project tsconfig.json src/index",
     "lint": "prettier --check ./src && eslint ./src",
     "prepublishOnly": "yarn build",
     "qc": "yarn lint && yarn type-check",
@@ -38,6 +36,7 @@
     "@eslint/js": "^10.0.1",
     "@types/luxon": "^3.7.5",
     "@types/node": "^22.20.1",
+    "@typescript/typescript6": "^6.0.2",
     "concurrently": "^10.0.5",
     "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
@@ -45,10 +44,8 @@
     "husky": "^9.1.5",
     "lint-staged": "^17.5.0",
     "prettier": "^3.9.6",
-    "ts-node-dev": "^2.0.0",
-    "tsup": "^8.0.0",
     "tsx": "^4.0.0",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "typescript-eslint": "^8.69.0"
   },
   "engines": {
