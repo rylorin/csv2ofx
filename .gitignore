@@ -132,3 +132,5 @@ dist
 # Repository (local) specific settings
 build/
 config/local*
+/.claude/
+/.kilo/

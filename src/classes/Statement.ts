@@ -11,6 +11,7 @@ export const StatementType = {
   Dividend: "Dividendes",
   Interests: "Intérêts",
   FeesRefund: "Remboursement de Frais",
+  CardDebit: "Card debit",
 } as const;
 
 export type StatementType = (typeof StatementType)[keyof typeof StatementType];
