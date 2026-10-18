@@ -39,7 +39,7 @@ export class App {
           account = config.get("account");
         }
       }
-      if (!account) throw "Account missiog";
+      if (!account) throw "Account missing";
       if (!model) {
         if (account && config.has(`accounts.${account}.model`)) {
           model = config.get(`accounts.${account}.model`);

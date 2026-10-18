@@ -1,0 +1,4 @@
+date;payee;category;amount;memo;label;reference;account
+2026-01-15;Supermarché;Courses;-42.50;Achat hebdo;courses;REF001;default
+2026-01-16;Salaire;Revenu;2500.00;;;REF002;default
+2026-02-01;Virement;Transfert;-100.00;Loyer;;REF003;default
